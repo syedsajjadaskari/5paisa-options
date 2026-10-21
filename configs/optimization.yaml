@@ -1,0 +1,24 @@
+# Parameter Optimization & Validation Configuration
+engine: "optuna"
+sampler: "tpe" # Tree-structured Parzen Estimator
+n_trials: 100
+timeout_seconds: 3600
+
+objective:
+  primary_metric: "sharpe_ratio" # Or calmar_ratio, sortino_ratio
+  penalize_drawdown: true
+  min_trades_required: 30
+
+data_splits:
+  development_pct: 0.60
+  validation_pct: 0.20
+  untouched_test_pct: 0.20
+
+walk_forward:
+  train_window_days: 90
+  test_window_days: 30
+  step_days: 30
+
+robustness:
+  monte_carlo_runs: 1000
+  confidence_interval: 0.95

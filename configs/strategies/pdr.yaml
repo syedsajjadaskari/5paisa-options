@@ -1,0 +1,18 @@
+# PDR (Previous Day Resistance Retest Support) Configuration
+strategy_name: "PDR"
+enabled: true
+instrument: "NIFTY 50"
+timeframe: "5m"
+direction: "LONG"
+
+canonical_rules:
+  target_points: 70.0
+  stop_loss_points_low: 35.0
+  stop_loss_points_high: 40.0
+  require_gap_up: true
+
+zone_rules:
+  reference_level: "PDH_ZONE" # Candle body to upper wick of previous day high
+  proximity_points_threshold: 5.0
+  retest_required: true
+  bullish_candle_confirmation: true

@@ -1,0 +1,15 @@
+# Core Application Configuration
+app_name: "TradingPlatform"
+version: "0.1.0"
+environment: "RESEARCH" # Options: RESEARCH, PAPER, LIVE
+
+logging:
+  level: "INFO"
+  format: "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level: <8} | {name}:{function}:{line} - {message}"
+  file_path: "artifacts/experiments/platform.log"
+  rotation: "10 MB"
+
+timezone: "Asia/Kolkata"
+broker:
+  default_provider: "paper" # Options: paper, fivepaisa
+  enforce_paper_safety: true

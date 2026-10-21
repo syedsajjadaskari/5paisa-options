@@ -1,0 +1,33 @@
+# Indian Market Schedule & Exchange Configuration
+exchange: "NSE"
+timezone: "Asia/Kolkata"
+
+sessions:
+  pre_open_start: "09:00:00"
+  pre_open_end: "09:08:00"
+  regular_open: "09:15:00"
+  regular_close: "15:30:00"
+  intraday_exit_time: "15:15:00"
+
+primary_instruments:
+  nifty50_spot:
+    symbol: "NIFTY 50"
+    token: "999920000"
+    lot_size: 25 # Recent NIFTY lot size
+    tick_size: 0.05
+    is_tradable: false # Index cannot be traded directly
+
+  nifty_future:
+    symbol_prefix: "NIFTY"
+    exchange: "NFO"
+    lot_size: 25
+    tick_size: 0.05
+    is_tradable: true
+
+  nifty_option:
+    symbol_prefix: "NIFTY"
+    exchange: "NFO"
+    lot_size: 25
+    tick_size: 0.05
+    strike_step: 50.0
+    is_tradable: true

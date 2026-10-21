@@ -1,0 +1,25 @@
+# RF (Reverse Failure) Strategy Configuration
+strategy_name: "RF"
+enabled: true
+instrument: "NIFTY 50"
+timeframe: "5m"
+direction: "LONG"
+
+trend_rules:
+  require_established_uptrend: true
+  ema_period: 200
+  reject_sudden_large_gaps: true
+
+gap_rules:
+  require_gap_up: true
+  max_gap_boundary: "PREVIOUS_DAY_HIGH" # Open must be <= yesterday's high
+
+sequence_rules:
+  first_candle_time: "09:20:00"
+  require_close_below_rf_low: true
+  reclaim_zone_trigger: true
+
+risk_rules:
+  stop_loss_points_low: 35.0
+  stop_loss_points_high: 40.0
+  target_points: 60.0 # Proposed baseline in ambiguities document

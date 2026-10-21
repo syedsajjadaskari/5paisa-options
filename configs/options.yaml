@@ -1,0 +1,53 @@
+# Options Backtest and Execution Configuration
+# Default research settings for NIFTY 50 Index Options
+
+underlying: "NIFTY"
+exchange: "NSE"
+instrument: "INDEX_OPTIONS"
+signal_timeframe: "5m"
+execution_timeframe: "1m"
+position_type: "LONG_OPTIONS_ONLY" # Experimental execution mapping
+
+signal_mapping:
+  bullish: "BUY_CE"
+  bearish: "BUY_PE"
+
+contract_selection:
+  moneyness: "ATM" # Options: ATM, ITM_1, OTM_1, TARGET_DELTA
+  expiry_policy: "NEAREST_ELIGIBLE" # Options: NEAREST_ELIGIBLE, NEXT_ELIGIBLE, MIN_DTE
+  min_dte: 1 # Minimum days to expiry (prevents severe expiry day decay/gamma risk)
+  allow_expiry_day: false
+  strike_step: 50.0
+
+liquidity_filters:
+  min_traded_volume: 1000
+  max_bid_ask_spread_pct: 2.0
+  min_premium_points: 20.0 # Avoid penny options (< ₹20)
+
+risk:
+  initial_capital: 100000.0 # ₹1 Lakh research capital
+  max_position_capital_pct: 10.0 # Max 10% capital per trade
+  max_risk_per_trade_pct: 1.0 # Max 1% portfolio risk per trade
+  max_open_positions: 1
+  max_daily_loss_pct: 2.0 # Max 2% portfolio loss per day
+  no_averaging_down: true
+
+exits:
+  default_mode: "UNDERLYING_BASED" # Options: UNDERLYING_BASED, PREMIUM_BASED, HYBRID
+  square_off_intraday: true
+  intraday_exit_time: "15:15:00"
+  premium_stop_pct: null # Used only when PREMIUM_BASED or HYBRID exit mode is enabled (e.g. 0.25)
+  premium_target_pct: null # Used only when PREMIUM_BASED or HYBRID exit mode is enabled (e.g. 0.50)
+
+execution:
+  include_brokerage: true
+  brokerage_per_order: 20.0
+  include_taxes: true
+  slippage_model: "configurable"
+  slippage_points: 0.50 # 0.50 points on option premium
+  reject_missing_data: true
+  reject_stale_quotes: true
+
+broker:
+  provider: "fivepaisa"
+  mode: "READ_ONLY" # Live order placement is strictly blocked

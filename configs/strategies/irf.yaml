@@ -1,0 +1,35 @@
+# IRF (Initial Range Failure) Strategy Configuration
+strategy_name: "IRF"
+enabled: true
+instrument: "NIFTY 50"
+timeframe: "5m"
+direction: "SHORT"
+
+canonical_rules:
+  initial_range_time: "09:20:00"
+  target_points: 60.0
+  stop_loss_points_low: 35.0
+  stop_loss_points_high: 40.0
+  distance_threshold: 35.0
+
+methods:
+  method_1:
+    name: "Breakout and Failure"
+    enabled: true
+    reclaim_window_bars: 1 # Canonical: next candle only
+
+  method_2:
+    name: "Extended Move and Reversal"
+    enabled: true
+    support_lookback_bars: 3
+    confirm_on_candle_close: true
+
+  method_3:
+    name: "Liquidity Sweep"
+    enabled: true
+    min_upper_wick_ratio: 0.60
+    compulsory_support_break: true
+
+experimental:
+  relaxed_reclaim_window_bars: 2 # Unapproved / experimental
+  use_atr_stop: false

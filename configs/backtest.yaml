@@ -1,0 +1,22 @@
+# Backtesting Engine Configuration
+initial_capital: 500000.0 # ₹5 Lakhs default
+currency: "INR"
+
+execution:
+  fill_timing: "NEXT_BAR_OPEN" # Strictly NEXT_BAR_OPEN to eliminate lookahead bias
+  same_bar_conflict: "STOP_LOSS_FIRST" # Conservative: SL assumed hit first
+  slippage_points: 1.0 # 1 NIFTY point slippage
+  intraday_exit_time: "15:15:00"
+
+costs:
+  brokerage_per_order: 20.0 # Flat ₹20 per order
+  stt_options_sell_rate: 0.000625 # 0.0625% on sell premium
+  stt_futures_sell_rate: 0.000125 # 0.0125%
+  exchange_turnover_rate: 0.000505 # 0.0505% on options premium
+  gst_rate: 0.18 # 18% on (brokerage + turnover)
+  sebi_turnover_rate: 0.000001 # ₹10 per crore
+  stamp_duty_rate: 0.00003 # 0.003% on buy side
+
+portfolio:
+  max_simultaneous_positions: 2
+  max_allocation_per_trade_pct: 0.20

@@ -218,3 +218,29 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Trading Platform Specific
+.env
+.env.*
+!.env.example
+*.duckdb
+*.duckdb.wal
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/cache/*
+!data/cache/.gitkeep
+artifacts/experiments/*
+!artifacts/experiments/.gitkeep
+reports/backtests/*
+!reports/backtests/.gitkeep
+reports/optimization/*
+!reports/optimization/.gitkeep
+reports/validation/*
+!reports/validation/.gitkeep
+reports/paper_trading/*
+!reports/paper_trading/.gitkeep
+tokens/
+*.session
+docs/strategy_specs_extracted/

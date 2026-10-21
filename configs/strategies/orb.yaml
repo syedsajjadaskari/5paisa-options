@@ -1,0 +1,33 @@
+# ORB (Opening Range Breakout) Strategy Configuration
+strategy_name: "ORB"
+enabled: true
+instrument: "NIFTY 50"
+timeframe: "5m"
+direction: "BOTH" # Long and Short
+
+canonical_rules:
+  decision_time: "09:20:00"
+  target_points: 60.0
+  stop_loss_points: 30.0
+  risk_reward_ratio: 2.0
+  ema_trend_period: 200
+
+candle_filters:
+  min_body_ratio: 0.50
+  max_rejection_wick_ratio: 0.20
+
+methods:
+  method_1:
+    name: "Previous Day Level Breakout"
+    enabled: true
+    require_trend_alignment: true
+
+  method_2:
+    name: "Trendline & Inner Level Breakout"
+    enabled: true
+    require_trendline: true
+
+  method_3:
+    name: "Gap Above/Below 200 DMA"
+    enabled: true
+    require_gap_through_dma: true

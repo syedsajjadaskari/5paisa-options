@@ -1,0 +1,20 @@
+# Centralized Risk Management Configuration
+limits:
+  max_risk_per_trade_inr: 3000.0
+  max_daily_loss_inr: 15000.0
+  max_open_positions: 2
+  max_trades_per_day: 5
+  max_consecutive_losses: 3
+  max_portfolio_drawdown_pct: 0.05 # 5% drawdown stops all new trades
+
+timing_controls:
+  no_trade_start_time: "09:15:00"
+  no_trade_end_time: "09:20:00" # First 5-minute candle formation window
+  forced_eod_square_off: "15:15:00"
+  market_close_time: "15:30:00"
+
+safeguards:
+  kill_switch: false
+  max_stale_data_seconds: 30
+  check_broker_connectivity: true
+  reject_duplicate_orders: true

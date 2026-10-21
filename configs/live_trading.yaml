@@ -1,0 +1,11 @@
+# Live Trading Safety Configuration
+# WARNING: Live order placement is DISABLED by default.
+enabled: false
+requires_manual_approval: true
+approval_token: ""
+
+guardrails:
+  max_single_order_value_inr: 50000.0
+  max_daily_turnover_inr: 500000.0
+  enforce_idempotency: true
+  reconcile_interval_seconds: 30

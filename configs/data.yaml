@@ -1,0 +1,25 @@
+# Data Pipeline & Storage Configuration
+storage:
+  base_dir: "data"
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  reference_dir: "data/reference"
+  cache_dir: "data/cache"
+  parquet_compression: "zstd"
+  duckdb_path: "data/processed/market_data.duckdb"
+
+providers:
+  default: "csv"
+  csv:
+    default_sample_path: "data/samples/nifty50_5min_sample.csv"
+  fivepaisa:
+    rate_limit_per_second: 5
+    max_retries: 3
+    retry_delay_seconds: 2
+
+validation:
+  strict_mode: true
+  allow_out_of_order: false
+  allow_duplicates: false
+  validate_ohlc_invariants: true
+  max_session_gap_minutes: 15

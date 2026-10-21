@@ -1,0 +1,14 @@
+# Paper Trading Configuration
+enabled: true
+initial_virtual_balance: 500000.0 # ₹5 Lakhs
+currency: "INR"
+
+order_execution:
+  simulate_slippage: true
+  slippage_points: 1.0
+  simulate_latency_ms: 150
+  fill_probability: 0.98
+
+notifications:
+  log_trades: true
+  alert_on_execution: true
