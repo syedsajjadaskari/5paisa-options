@@ -1,0 +1,7 @@
+strategy,method,rule_clarity,manual_trades_in_journal,matched_manual_trades,manual_agreement_pct,historical_expectancy_pts,profit_factor,max_drawdown_pts,trade_count,stability_rating,execution_feasibility,readiness_rank,readiness_tier,notes
+PDS,Method 1: Strong Red Candle,HIGH,3,3,100.0,17.02,1.94,136.8,74,EXCELLENT,HIGH,1,READY_FOR_PHASE_3B_OPTIMIZATION,Highest standalone expectancy and lowest drawdown. 3 of 3 manual trades matched. Prime candidate.
+ORB,Method 1: PDH/PDL Breakout,HIGH,89,46,51.69,9.15,1.53,250.5,61,GOOD,HIGH,2,READY_FOR_PHASE_3B_OPTIMIZATION,46 of 89 manual trades matched. Mechanical filters remove chop. Ready for parameter tuning.
+IRF,Method 2: Extension & Reversal,MEDIUM,73,25,34.25,3.19,1.16,321.0,127,MODERATE,HIGH,3,READY_FOR_PHASE_3B_OPTIMIZATION,Method 2 significantly outperforms Method 1 (-74 pts vs +404 pts).
+PDR,Method 1: Retest Bounce,MEDIUM,8,6,75.0,1.51,1.07,335.2,77,MODERATE,HIGH,4,REQUIRES_ZONE_REFINEMENT,Positive expectancy but modest profit factor. 6 of 8 manual trades matched.
+IRF,Method 1: Immediate Failure,HIGH,73,25,34.25,-0.66,0.97,408.0,112,POOR,HIGH,5,UNPROFITABLE_IN_SAMPLE,Negative net points (-74 pts). Requires trend filtering or Method 2 substitution.
+RF,Canonical Reclaim,LOW,17,11,64.71,-5.73,0.74,418.7,29,POOR,MEDIUM,6,ENTRY_VALIDATION_ONLY,Exit rule marked 'OPEN' in PDF. 11 of 17 manual trades matched. Blocked from optimization.

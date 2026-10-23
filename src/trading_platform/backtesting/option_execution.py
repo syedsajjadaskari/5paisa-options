@@ -2,7 +2,7 @@
 
 Key Execution Guardrails:
 1. Anti-Lookahead: A signal confirmed on candle t close is executed strictly at candle t+1 Open.
-2. Timing Verification: Asserts next_option_bar.exchange_time >= signal.timestamp.
+2. Timing Verification: Requires next_option_bar.exchange_time > signal.timestamp.
 3. Stale Quote Rejection: Checks bid/ask quotes for inverted spreads (ask < bid) or zero values.
    Falls back to conservative OHLC open + slippage if quotes are stale.
 4. No Artificial Capping: Slippage on Buy is NEVER capped down to bar High (which would artificially
@@ -72,7 +72,7 @@ class OptionExecutionSimulator:
             return None, PositionSizeResult(False, 0, 0, 0.0, reason), reason
 
         # 2. Timing Alignment & Anti-Lookahead Assertion
-        if next_option_bar.exchange_time < signal.timestamp:
+        if next_option_bar.exchange_time <= signal.timestamp:
             reason = (
                 f"REJECTED_LOOKAHEAD_VIOLATION: Next bar time ({next_option_bar.exchange_time}) "
                 f"is earlier than signal confirmation ({signal.timestamp})"
@@ -194,7 +194,9 @@ class OptionExecutionSimulator:
             entry_premium=entry_price,
             exit_premium=exit_fill_price,
             quantity=quantity,
-            apply_slippage=True,
+            # Entry and exit prices already include adverse slippage.  Adding a
+            # separate slippage cost here would charge the same impact twice.
+            apply_slippage=False,
         )
 
         # Calculate Net P&L and metrics

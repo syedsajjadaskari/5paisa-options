@@ -115,11 +115,10 @@ class RFStrategy(BaseStrategy):
 
                 # Check rulebook openness
                 if self.strict_rulebook_mode:
-                    # In strict rulebook mode, Page 8 leaves target OPEN
-                    # Emit with unresolved status metadata
-                    entry_reason = "RF_UNRESOLVED_RULEBOOK_TARGET"
-                else:
-                    entry_reason = "RF_CANONICAL_RECLAIM_LONG"
+                    # Page 8 leaves both the exact entry and target open.  A
+                    # strict implementation cannot construct a valid trade.
+                    return None
+                entry_reason = "RF_EXPERIMENTAL_60_POINT_RECLAIM_LONG"
 
                 ref_price = latest_bar.close
                 target = round(ref_price + self.target_points, 2)

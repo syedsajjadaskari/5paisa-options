@@ -1,0 +1,48 @@
+# Production-Grade NIFTY Options Paper Trading Configuration
+
+trading:
+  mode: LIVE_READ_ONLY
+  paper_execution_enabled: false
+  underlying: NIFTY 50
+  broker_data_source: FIVEPAISA
+  broker_execution_enabled: false
+
+portfolio:
+  starting_capital_inr: 250000
+  maximum_lots_per_trade: 2
+  maximum_concurrent_positions: 1
+  long_options_only: true
+  allow_overnight_positions: false
+  entry_cutoff_ist: "14:30"
+  square_off_ist: "15:15"
+
+strategies:
+  PDS:
+    enabled: true
+    method: METHOD_1
+  ORB:
+    enabled: true
+    method: METHOD_1
+  IRF:
+    enabled: true
+    method: METHOD_2
+  PDR:
+    enabled: true
+    method: RETEST_BOUNCE
+  RF:
+    enabled: false
+
+options:
+  initial_selection: ATM
+  minimum_days_to_expiry: 0
+  maximum_quote_age_seconds: 5
+  maximum_bid_ask_spread_percent: 2.0
+  verified_archive_dir: data/processed/options_archive_verified
+  maximum_lots: 2
+
+risk:
+  daily_loss_limit_percent: 2.0
+  maximum_open_premium_allocation_percent: 20.0
+  stop_new_entries_after_daily_limit: true
+  reject_missing_quotes: true
+  reject_stale_quotes: true

@@ -1,0 +1,34 @@
+sl_no,date,strategy,manual_outcome,auto_trade_id,auto_exit_reason,auto_points_pnl,disagreement_classification,detailed_root_cause_analysis,earlier_report_claim
+5,2025-09-08,RF,BE,RF_TR_0007,TARGET,59.8,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+59.8 pts).,VERIFIED
+6,2025-09-09,RF,SL,RF_TR_0008,EOD_SQUAREOFF,22.9,BINARY_DISAGREEMENT_SL_VS_EOD,"Manual journal recorded SL, but mechanical engine held until 15:15 EOD square-off.","CORRECTED: Earlier summary noted 'only 4 disagreements', omitting the 2 SL vs EOD trades."
+9,2025-09-15,RF,SL,RF_TR_0010,STOP_LOSS,-36.0,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+15,2025-09-26,ORB,BE,ORB_TR_0005,TARGET,58.65,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+58.6 pts).,VERIFIED
+18,2025-10-06,PDR,Target,PDR_TR_0010,STOP_LOSS,-36.45,BINARY_DISAGREEMENT_TARGET_VS_SL,"Manual journal recorded Target, but mechanical engine stopped out.",VERIFIED
+31,2025-10-29,RF,Target,RF_TR_0012,TARGET,61.25,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+33,2025-11-03,IRF,BE,IRF_TR_0029,STOP_LOSS,-41.2,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-41.2 pts).,VERIFIED
+34,2025-11-07,ORB,Target,ORB_TR_0013,STOP_LOSS,-34.95,BINARY_DISAGREEMENT_TARGET_VS_SL,"Manual journal recorded Target, but mechanical engine stopped out.",VERIFIED
+37,2025-11-17,ORB,BE,ORB_TR_0014,STOP_LOSS,-32.4,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-32.4 pts).,VERIFIED
+38,2025-11-18,RF,Target,RF_TR_0013,TARGET,59.15,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+42,2025-11-24,RF,BE,RF_TR_0014,STOP_LOSS,-35.75,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-35.8 pts).,VERIFIED
+51,2025-12-12,ORB,BE,ORB_TR_0018,STOP_LOSS,-31.75,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-31.8 pts).,VERIFIED
+55,2025-12-19,ORB,BE,ORB_TR_0019,TARGET,60.5,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+60.5 pts).,VERIFIED
+57,2025-12-23,RF,Target,RF_TR_0016,TARGET,58.3,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+60,2025-12-30,ORB,BE,ORB_TR_0021,STOP_LOSS,-30.4,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-30.4 pts).,VERIFIED
+66,2026-01-07,IRF,BE,IRF_TR_0052,TARGET,60.25,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+60.2 pts).,VERIFIED
+68,2026-01-14,IRF,BE,IRF_TR_0053,STOP_LOSS,-42.75,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-42.8 pts).,VERIFIED
+73,2026-01-28,ORB,BE,ORB_TR_0027,STOP_LOSS,-30.45,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-30.4 pts).,VERIFIED
+74,2026-01-30,IRF,BE,IRF_TR_0058,STOP_LOSS,-36.1,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-36.1 pts).,VERIFIED
+81,2026-02-12,ORB,BE,ORB_TR_0029,TARGET,61.95,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+62.0 pts).,VERIFIED
+84,2026-02-18,RF,SL,RF_TR_0023,STOP_LOSS,-37.75,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+89,2026-02-26,RF,SL,RF_TR_0024,STOP_LOSS,-39.3,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+96,2026-03-16,IRF,Target,IRF_TR_0071,STOP_LOSS,-36.3,BINARY_DISAGREEMENT_TARGET_VS_SL,"Manual journal recorded Target, but mechanical engine stopped out.",VERIFIED
+123,2026-05-19,ORB,BE,ORB_TR_0050,STOP_LOSS,-32.65,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-32.6 pts).,VERIFIED
+136,2026-06-05,PDR,BE,PDR_TR_0065,STOP_LOSS,-50.3,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-50.3 pts).,VERIFIED
+138,2026-06-10,ORB,BE,ORB_TR_0052,TARGET,59.1,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+59.1 pts).,VERIFIED
+141,2026-06-12,PDR,BE,PDR_TR_0067,TARGET,68.0,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via TARGET (+68.0 pts).,VERIFIED
+146,2026-06-22,ORB,BE,ORB_TR_0053,EOD_SQUAREOFF,-16.85,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via EOD_SQUAREOFF (-16.9 pts).,VERIFIED
+148,2026-06-24,IRF,Target,IRF_TR_0105,STOP_LOSS,-36.55,BINARY_DISAGREEMENT_TARGET_VS_SL,"Manual journal recorded Target, but mechanical engine stopped out.",VERIFIED
+173,2026-08-05,RF,SL,RF_TR_0032,STOP_LOSS,-36.5,UNRESOLVED_RULE_TARGET_OPEN,RF rulebook page 8 marks profit target as 'OPEN'. Experimental 60 pt target applied.,VERIFIED
+174,2026-08-06,IRF,BE,IRF_TR_0120,STOP_LOSS,-34.8,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-34.8 pts).,VERIFIED
+184,2026-08-21,RF,SL,RF_TR_0034,EOD_SQUAREOFF,13.0,BINARY_DISAGREEMENT_SL_VS_EOD,"Manual journal recorded SL, but mechanical engine held until 15:15 EOD square-off.","CORRECTED: Earlier summary noted 'only 4 disagreements', omitting the 2 SL vs EOD trades."
+186,2026-08-25,IRF,BE,IRF_TR_0123,STOP_LOSS,-33.35,DISCRETIONARY_BREAK_EVEN,Manual journal trailed stop to Break-Even; mechanical engine exited via STOP_LOSS (-33.4 pts).,VERIFIED

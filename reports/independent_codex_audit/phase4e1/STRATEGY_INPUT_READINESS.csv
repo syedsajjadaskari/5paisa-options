@@ -1,0 +1,6 @@
+strategy,evaluations,completed_candles,missing_reference_rows,stale_underlying_rows,indicator_not_ready_rows,rulebook_ambiguity_rows,reference_data_status,signal_eligible,primary_blocker
+IRF,75,75,75,0,0,0,NOT_AVAILABLE_TO_EVALUATOR,0,MISSING_REFERENCE_DATA: replay supplied no point-in-time prior-day levels
+ORB,75,75,75,0,0,0,NOT_AVAILABLE_TO_EVALUATOR,0,MISSING_REFERENCE_DATA: replay supplied no point-in-time prior-day levels
+PDR,75,75,75,0,0,0,NOT_AVAILABLE_TO_EVALUATOR,0,MISSING_REFERENCE_DATA: replay supplied no point-in-time prior-day levels
+PDS,75,75,75,0,0,0,NOT_AVAILABLE_TO_EVALUATOR,0,MISSING_REFERENCE_DATA: replay supplied no point-in-time prior-day levels
+RF,75,75,0,0,0,75,NOT_EVALUATED,0,RULEBOOK_AMBIGUITY: developer clarification required

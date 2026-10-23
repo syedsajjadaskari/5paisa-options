@@ -34,6 +34,21 @@ from datetime import date
 
 
 @dataclass(frozen=True)
+class SingleLegCostBreakdown:
+    """Detailed line-item cost attribution for a single options order leg."""
+
+    side: str
+    brokerage: float
+    stt: float
+    exchange_charges: float
+    gst: float
+    sebi_charges: float
+    stamp_duty: float
+    slippage_cost: float
+    total_charges: float
+
+
+@dataclass(frozen=True)
 class OptionTradeCostBreakdown:
     """Detailed line-item cost attribution for an options round-trip trade."""
 
@@ -167,7 +182,6 @@ class IndianOptionsCostCalculator:
             brokerage + stt + exchange_charges + gst + sebi_charges + stamp_duty + slippage_cost,
             2,
         )
-
         return OptionTradeCostBreakdown(
             brokerage=brokerage,
             stt=stt,
@@ -178,4 +192,57 @@ class IndianOptionsCostCalculator:
             slippage_cost=slippage_cost,
             total_transaction_costs=total_costs,
             exercise_stt=exercise_stt,
+        )
+
+    def calculate_single_leg_costs(
+        self,
+        trade_date: date,
+        side: str,
+        premium: float,
+        quantity: int,
+        apply_slippage: bool = True,
+    ) -> SingleLegCostBreakdown:
+        """Calculate line-item transaction charges for a single order leg (BUY or SELL)."""
+        if quantity <= 0:
+            raise ValueError(f"Quantity must be positive, got {quantity}")
+
+        turnover = premium * quantity
+        brokerage = round(self.brokerage_per_order, 2)
+        exchange_rate = self.get_exchange_turnover_rate(trade_date)
+        exchange_charges = round(turnover * exchange_rate, 2)
+        sebi_charges = round(turnover * self.sebi_turnover_rate, 2)
+        taxable_services = brokerage + exchange_charges + sebi_charges
+        gst = round(taxable_services * self.gst_rate, 2)
+
+        side_upper = side.upper()
+        if side_upper == "BUY":
+            stamp_duty = round(turnover * self.stamp_duty_rate, 2)
+            stt = 0.0
+        elif side_upper == "SELL":
+            stamp_duty = 0.0
+            stt_rate = self.get_stt_rate(trade_date)
+            stt = round(turnover * stt_rate, 2)
+        else:
+            stamp_duty = 0.0
+            stt = 0.0
+
+        slippage_cost = 0.0
+        if apply_slippage:
+            slippage_cost = round(self.slippage_points_per_unit * quantity, 2)
+
+        total_charges = round(
+            brokerage + stt + exchange_charges + gst + sebi_charges + stamp_duty + slippage_cost,
+            2,
+        )
+
+        return SingleLegCostBreakdown(
+            side=side_upper,
+            brokerage=brokerage,
+            stt=stt,
+            exchange_charges=exchange_charges,
+            gst=gst,
+            sebi_charges=sebi_charges,
+            stamp_duty=stamp_duty,
+            slippage_cost=slippage_cost,
+            total_charges=total_charges,
         )

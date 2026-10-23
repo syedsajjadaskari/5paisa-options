@@ -241,6 +241,10 @@ reports/validation/*
 !reports/validation/.gitkeep
 reports/paper_trading/*
 !reports/paper_trading/.gitkeep
+docs/strategy_specs_extracted/
 tokens/
 *.session
-docs/strategy_specs_extracted/
+.DS_Store
+**/.DS_Store
+
+

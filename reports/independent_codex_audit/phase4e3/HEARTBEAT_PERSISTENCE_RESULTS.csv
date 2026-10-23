@@ -1,0 +1,12 @@
+check,observed,status
+startup_lock_acquired,True,PASS
+heartbeat_atomic_state,True,PASS
+heartbeat_has_no_account_namespace,True,PASS
+restart_after_release,True,PASS
+safe_shutdown_status,True,PASS
+closed_session_api_calls,True,PASS
+persisted_spot_rows,1,PASS
+persisted_candle_rows,1,PASS
+virtual_orders,0,PASS
+virtual_fills,0,PASS
+mode,READ_ONLY,PASS

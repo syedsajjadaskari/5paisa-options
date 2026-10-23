@@ -1,0 +1,8 @@
+{
+  "session_date": "2025-08-06",
+  "source": "data/processed/nifty/5m/nifty50_5m.parquet",
+  "charts": [
+    "reports/independent_codex_audit/phase4e3/charts/2025-08-06_historical_session.png",
+    "reports/independent_codex_audit/phase4e3/charts/2025-08-07_discrepancy_example.png"
+  ]
+}

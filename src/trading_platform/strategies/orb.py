@@ -96,10 +96,14 @@ class ORBStrategy(BaseStrategy):
         upper_wick = get_upper_wick_ratio(latest_bar)
         lower_wick = get_lower_wick_ratio(latest_bar)
         is_bullish_candle = (
-            latest_bar.close > latest_bar.open and upper_wick <= self.max_opposing_wick_ratio
+            latest_bar.close > latest_bar.open
+            and is_solid_body
+            and upper_wick <= self.max_opposing_wick_ratio
         ) or is_lpr_pin_bar(latest_bar, 0.45)
         is_bearish_candle = (
-            latest_bar.close < latest_bar.open and lower_wick <= self.max_opposing_wick_ratio
+            latest_bar.close < latest_bar.open
+            and is_solid_body
+            and lower_wick <= self.max_opposing_wick_ratio
         ) or is_hpr_pin_bar(latest_bar, 0.45)
 
         # -------------------------------------------------------------
@@ -108,12 +112,12 @@ class ORBStrategy(BaseStrategy):
         if method == "METHOD_1":
             if pdh is not None and latest_bar.close > pdh and is_bullish_candle:
                 # Long: Uptrend filter (price > 200 EMA)
-                if ema_200 is None or latest_bar.close >= ema_200:
+                if ema_200 is not None and latest_bar.close >= ema_200:
                     direction = SignalDirection.BUY
                     entry_reason = "ORB_METHOD_1_PDH_BREAKOUT"
             elif pdl is not None and latest_bar.close < pdl and is_bearish_candle:
                 # Short: Downtrend filter (price < 200 EMA)
-                if ema_200 is None or latest_bar.close <= ema_200:
+                if ema_200 is not None and latest_bar.close <= ema_200:
                     direction = SignalDirection.SELL
                     entry_reason = "ORB_METHOD_1_PDL_BREAKDOWN"
 
@@ -124,12 +128,12 @@ class ORBStrategy(BaseStrategy):
             # Inner level inside previous day range
             if inner_res is not None and latest_bar.close > inner_res and is_bullish_candle:
                 # Long: price above 200 EMA
-                if ema_200 is None or latest_bar.close >= ema_200:
+                if ema_200 is not None and latest_bar.close >= ema_200:
                     direction = SignalDirection.BUY
                     entry_reason = "ORB_METHOD_2_INNER_RESISTANCE_BREAKOUT"
             elif inner_supp is not None and latest_bar.close < inner_supp and is_bearish_candle:
                 # Short: price below 200 EMA
-                if ema_200 is None or latest_bar.close <= ema_200:
+                if ema_200 is not None and latest_bar.close <= ema_200:
                     direction = SignalDirection.SELL
                     entry_reason = "ORB_METHOD_2_INNER_SUPPORT_BREAKDOWN"
 
@@ -159,15 +163,6 @@ class ORBStrategy(BaseStrategy):
                     entry_reason = "ORB_METHOD_3_GAP_BELOW_200DMA"
             else:
                 entry_reason = "REJECTED_INSUFFICIENT_DMA_WARMUP"
-
-        # Baseline Fallback (Pure Opening Range Breakout if levels not supplied)
-        if direction == SignalDirection.HOLD and pdh is None and method == "METHOD_1":
-            if latest_bar.close > latest_bar.open and upper_wick <= 0.20 and is_solid_body:
-                direction = SignalDirection.BUY
-                entry_reason = "ORB_CANDLE_1_BULLISH_CLOSE"
-            elif latest_bar.close < latest_bar.open and lower_wick <= 0.20 and is_solid_body:
-                direction = SignalDirection.SELL
-                entry_reason = "ORB_CANDLE_1_BEARISH_CLOSE"
 
         self._daily_evaluated[day_key] = True
 

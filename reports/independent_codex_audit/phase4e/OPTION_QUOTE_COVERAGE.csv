@@ -1,0 +1,3 @@
+capture_id,contract,scrip_code,observations,valid_quotes,rejected_quotes,coverage_percent,provider_timestamp_first,provider_timestamp_last,max_quote_age_seconds,full_tick_feed
+PHASE4D_20261022_122136,CE,51334,1,1,0,100.0,/Date(1792651900000+0530)/,/Date(1792651900000+0530)/,1.423,False
+PHASE4D_20261022_122136,PE,51337,1,1,0,100.0,/Date(1792651900000+0530)/,/Date(1792651900000+0530)/,1.953,False

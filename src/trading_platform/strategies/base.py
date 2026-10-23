@@ -81,5 +81,9 @@ class BaseStrategy(ABC):
         }
 
     def reset_state(self) -> None:
-        """Reset internal state machine (e.g. at start of new day)."""
+        """Reset internal state machine (e.g. at start of new day or run)."""
         self._state_machine.clear()
+        if hasattr(self, "_daily_state") and isinstance(self._daily_state, dict):
+            self._daily_state.clear()
+        if hasattr(self, "_daily_evaluated") and isinstance(self._daily_evaluated, dict):
+            self._daily_evaluated.clear()

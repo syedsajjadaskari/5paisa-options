@@ -75,9 +75,9 @@ class PDSStrategy(BaseStrategy):
 
         pdl = context.state.get("pdl")
         prev_close = context.state.get("prev_close")
-        pd_supp_body = context.state.get("pd_supp_body", (pdl + 15.0) if pdl is not None else None)
+        pd_supp_body = context.state.get("pd_supp_body")
 
-        if pdl is None or prev_close is None:
+        if pdl is None or prev_close is None or pd_supp_body is None:
             return None
 
         # 1. First Bar: Gap-Down Gatekeeper Check (Pages 1, 2)
@@ -96,10 +96,11 @@ class PDSStrategy(BaseStrategy):
 
         # 2. Zone Retest Check (Support acting as Resistance, Page 4)
         zone_bottom = pdl
-        zone_top = pd_supp_body if pd_supp_body is not None else (zone_bottom + 15.0)
+        zone_top = pd_supp_body
 
-        # Retest occurs if bar High pushes up to touch zone (or within 5 pt proximity)
-        if latest_bar.high >= (zone_bottom - 5.0) and latest_bar.low <= (zone_top + 5.0):
+        # Retest occurs if bar High pushes up to touch zone (or within proximity)
+        zone_proximity = float(self.config.get("zone_proximity_pts", 5.0))
+        if latest_bar.high >= (zone_bottom - zone_proximity) and latest_bar.low <= (zone_top + zone_proximity):
             state["zone_tested"] = True
 
         # 3. Confirmation Trigger (Page 5)
@@ -112,7 +113,8 @@ class PDSStrategy(BaseStrategy):
 
             # Method 1: Good Red Candle (clear decisive body, close near low)
             if method == "METHOD_1":
-                if is_red and is_strong_body_candle(latest_bar, 0.45):
+                min_body = float(self.config.get("min_body_ratio", 0.45))
+                if is_red and is_strong_body_candle(latest_bar, min_body):
                     confirmed = True
                     entry_reason = "PDS_METHOD_1_STRONG_RED_CANDLE"
                 else:
@@ -122,7 +124,8 @@ class PDSStrategy(BaseStrategy):
 
             # Method 2: Red Pin Bar with HPR
             elif method == "METHOD_2":
-                if is_red and is_hpr_pin_bar(latest_bar, 0.45):
+                pin_ratio = float(self.config.get("pin_bar_wick_ratio", 0.45))
+                if is_red and is_hpr_pin_bar(latest_bar, pin_ratio):
                     confirmed = True
                     entry_reason = "PDS_METHOD_2_HPR_PIN_BAR"
                 else:
@@ -132,14 +135,19 @@ class PDSStrategy(BaseStrategy):
             # Method 3: Break of a Small Support (Fallback)
             elif method == "METHOD_3":
                 minor_supp = state.get("minor_support_level")
-                if minor_supp is not None and latest_bar.close < minor_supp and is_red:
+                if (
+                    state["weak_candle_seen"]
+                    and minor_supp is not None
+                    and latest_bar.close < minor_supp
+                    and is_red
+                ):
                     confirmed = True
                     entry_reason = "PDS_METHOD_3_SMALL_SUPPORT_BREAK"
-                else:
-                    # Update minor support as consolidation forms near zone
-                    state["minor_support_level"] = min(
-                        state["minor_support_level"] or latest_bar.low, latest_bar.low
-                    )
+                elif not state["weak_candle_seen"] and is_red:
+                    # The fallback is only armed by an initial weak/small red
+                    # rejection candle, as required by the rulebook.
+                    state["weak_candle_seen"] = True
+                    state["minor_support_level"] = latest_bar.low
 
             if confirmed:
                 state["has_traded"] = True

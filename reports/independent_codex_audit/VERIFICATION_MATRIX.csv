@@ -1,0 +1,45 @@
+Feature,Expected behavior,Actual implementation/evidence,Status,Severity
+Repository identity,Known branch and revision,"main at 72756466930511318319e8a25b3fe49e2a821577; origin/main equal; dirty tree preserved",VERIFIED,P3
+Python build,All source imports/compiles,"Repository .venv Python 3.11 compileall passes",VERIFIED,P2
+Full automated suite,All tests pass in project environment,"182 tests pass; primarily unit/synthetic",VERIFIED,P2
+Static lint,Ruff clean,"ruff check . passes",VERIFIED,P3
+Real-order isolation,No transactional SDK path callable,"Read-only client proxy blocks named transaction methods and generic order_request; 11 boundary checks",VERIFIED,P0
+Paper execution gate,Disabled unless explicitly and validly configured,"Default false; both YAMLs false; missing/malformed config forces LIVE_READ_ONLY",VERIFIED,P0
+Public CLI launcher,Uses audited engine,"scripts/run_paper_trading.py now routes to trading_platform.paper.cli",VERIFIED,P1
+Legacy duplicate engine,No conflicting operational implementation,"Dormant execution/paper_trading_engine.py remains with differing defaults",INCORRECT,P2
+Spot timestamp parsing,Use genuine provider timestamp,"Strict parser supports 5paisa epoch/ISO and rejects absent/malformed values",VERIFIED,P0
+Quote freshness,Reject older than configured five seconds,"Age independently recomputed; 4.9 and 5.0 accepted; 5.1 rejected",VERIFIED,P1
+Live quote authenticity,Genuine fresh market data observed,"Doctor got read-only response; observe SSL timeout; no accepted live tick",BLOCKED,P1
+Option archive,Genuine provider and receipt timestamps,"Historical archive has provider_timestamp equal to receipt_timestamp throughout and nonpositive prices",INCORRECT,P0
+Option archival going forward,No fabricated provider time,"Recorder now skips missing or malformed provider time",VERIFIED,P0
+Paper account arithmetic,Equity equals starting capital plus net P&L and broker cash,"Corrected entry costs and per-leg rounding; independent hand calculation and assertions",VERIFIED,P0
+Restart recovery,No mixed or erased state,"Atomic files plus generation/cash/position reconciliation; old production state rejected",VERIFIED,P0
+Process exclusivity,One owner only,"Exclusive lock creation; run_id ownership; duplicate/stale tests",PARTIALLY_VERIFIED,P1
+Strategy live context,No invented levels,"Fabricated PDH/PDL/close/DMA values removed; absent context prevents signals",VERIFIED,P0
+IRF rules,Match source PDF,"M1/M2 largely mechanical; M3 support is now evidence-derived but wick threshold remains interpretation",PARTIALLY_VERIFIED,P1
+ORB rules,Match source PDF,"Strong-body and required trend context enforced; established-trend concept still approximated by EMA",PARTIALLY_VERIFIED,P1
+PDR rules,Match source PDF,"Real body-to-wick zone required; proximity and stop selection remain discretionary",PARTIALLY_VERIFIED,P1
+PDS rules,Match source PDF,"Real support zone and weak-first-red prerequisite enforced; qualitative candle tests remain interpretations",PARTIALLY_VERIFIED,P1
+RF rules,No invented canonical exit,"Canonical path disabled; 60-point path explicitly experimental",PARTIALLY_VERIFIED,P1
+Official daily levels,Use prior official daily bars with no lookahead,"Daily PDH/PDL/PDC/DMA preferred; post-close intraday bars excluded; leakage tests pass",VERIFIED,P1
+Backtest next-bar fill,Entry after confirmed signal and rebase risk levels,"Strictly future bar; SL/target rebased from actual fill",VERIFIED,P1
+Backtest cutoff,No entry at or after 14:30,"Signals and pending fills blocked at cutoff",VERIFIED,P1
+Legacy baseline arithmetic,Reproduce saved records independently,"353 unarbitrated and 302 FIFO; FIFO net 1608.90/PF 1.2686/DD 635.25",VERIFIED,P1
+Current baseline reproducibility,Current corrected code reproduces BASELINE_V1,"Correctness fixes intentionally change output",INCORRECT,P1
+Corrected backtest,Separately version corrected output,"CORRECTED_V2 metrics reported; not canonical/profit proof",PARTIALLY_VERIFIED,P1
+Manual workbook,Verify rows and outcomes,"190 IDs; 81 Target/65 SL/44 BE; five Saturdays; no formulas",VERIFIED,P1
+Manual-auto matching,One-to-one matching,"Legacy ledger independently reproduces 91 <=10-minute matches; corrected auditor produces 89",PARTIALLY_VERIFIED,P1
+Optimization,Real artifacts and valid robust metric,"600 trials and 12 fold records exist; WFER 0.82 does not reconcile; artifacts invalidated",INCORRECT,P1
+Research charts,All plotted values ledger-derived,"Legacy hard-coded chart values found; generation now fails closed",INCORRECT,P1
+NSE regular calendar,Official 2026 F&O holidays,"Holiday list corrected from NSE circulars",VERIFIED,P1
+NSE special sessions,Muhurat and Budget sessions represented,"Static calendar does not model special sessions",NOT_IMPLEMENTED,P1
+Instrument master,Usable NIFTY option metadata,"4062 NIFTY option rows; unique scrips; lot 65; expiry range inspected",VERIFIED,P1
+Contract expiry rule,Current NSE weekly expiry handled,"Official contract source reviewed; implementation/tests require further live-chain evidence",PARTIALLY_VERIFIED,P1
+Transaction costs,Date-specific Indian option costs,"Rates and rounding independently tested; example reconciles",VERIFIED,P1
+Daily loss limit,Guaranteed maximum realized loss,"Control exists but gaps/pending quotes can exceed it",PARTIALLY_VERIFIED,P1
+DuckDB persistence,Transactional and migration-safe,"Schemas inspected; writes are not comprehensively transactional and migrations are absent",PARTIALLY_VERIFIED,P2
+Reporting,Run-scoped and evidence-based,"Queries parameterized/scoped; unconditional PASSED removed; old reports remain misleading",PARTIALLY_VERIFIED,P2
+Dashboard,Displays coherent current persisted state,"Process runs but inherited corrupt state/archive prevents trustworthy display",BLOCKED,P1
+Credential hygiene,No tracked secrets,".env/token cache ignored and mode 600; no tracked secret-like file found",VERIFIED,P1
+Real API E2E,Genuine option quote to virtual fill/exit,"Not demonstrated; no order sent",BLOCKED,P1
+

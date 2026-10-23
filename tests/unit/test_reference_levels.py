@@ -108,3 +108,49 @@ def test_reference_levels_ema_and_dma_warmup() -> None:
     # Bar 4 is 5th bar -> warmup satisfied
     assert contexts[4].has_sufficient_ema_warmup is True
     assert contexts[4].ema_200 is not None
+
+
+def test_official_daily_ohlc_overrides_intraday_reference_without_future_leakage() -> None:
+    """PDH/PDL/PDC and DMA use completed daily bars, while zone bodies stay intraday."""
+    calc = ReferenceLevelCalculator(dma_warmup_period=1)
+    d1 = date(2024, 10, 1)
+    d2 = date(2024, 10, 2)
+    intraday = [
+        _make_bar(d1, 9, 15, 100.0, 110.0, 90.0, 101.0),
+        _make_bar(d1, 15, 25, 101.0, 108.0, 95.0, 102.0),
+        _make_bar(d2, 9, 15, 106.0, 109.0, 104.0, 108.0),
+    ]
+    official = [
+        _make_bar(d1, 0, 0, 99.0, 112.0, 88.0, 105.0),
+        # This current-day bar must not leak into d2's references.
+        _make_bar(d2, 0, 0, 106.0, 999.0, 1.0, 500.0),
+    ]
+
+    levels = calc.compute_daily_reference_levels(intraday, official)
+
+    assert levels[d2].pdh == 112.0
+    assert levels[d2].pdl == 88.0
+    assert levels[d2].pdc == 105.0
+    assert levels[d2].pdo == 99.0
+    assert levels[d2].dma_200 == 105.0
+    assert levels[d2].pd_res_body == 101.0
+    assert levels[d2].pd_supp_body == 100.0
+
+
+def test_post_close_1530_record_cannot_define_prior_day_zone() -> None:
+    """The broker's zero-volume 15:30 record is outside continuous 5-minute bar opens."""
+    calc = ReferenceLevelCalculator()
+    d1 = date(2024, 10, 1)
+    d2 = date(2024, 10, 2)
+    bars = [
+        _make_bar(d1, 9, 15, 100.0, 110.0, 90.0, 101.0),
+        _make_bar(d1, 15, 25, 101.0, 111.0, 95.0, 102.0),
+        _make_bar(d1, 15, 30, 102.0, 999.0, 1.0, 500.0),
+        _make_bar(d2, 9, 15, 105.0, 108.0, 100.0, 106.0),
+    ]
+
+    levels = calc.compute_daily_reference_levels(bars)
+
+    assert levels[d2].pdh == 111.0
+    assert levels[d2].pdl == 90.0
+    assert levels[d2].pdc == 102.0

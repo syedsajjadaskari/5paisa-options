@@ -140,8 +140,9 @@ class IRFStrategy(BaseStrategy):
                         state["extension_recent_resistance"] = latest_bar.high
                     return None
 
-                # Must have extended for > 1 candle above IRH
-                if state["extension_candles_count"] >= 2:
+                # Must have extended for required candles above IRH
+                min_ext_bars = int(self.config.get("min_extension_bars", self.config.get("extension_bars", 2)))
+                if state["extension_candles_count"] >= min_ext_bars:
                     is_red = latest_bar.close < latest_bar.open
 
                     # Confirmation A: Support Break (Page 8)
@@ -186,8 +187,10 @@ class IRFStrategy(BaseStrategy):
                     outside_share = portion_above / upper_wick
                     # Wick condition: 60% to 70% of upper wick lies above IRH
                     # Compulsory confirmation: red sweep candle closes below recent support
-                    recent_supp = context.state.get("recent_swing_low", irh - 10.0)
+                    recent_supp = context.state.get("recent_swing_low")
                     if (
+                        recent_supp is not None
+                        and
                         0.55 <= outside_share <= 0.85
                         and latest_bar.close < latest_bar.open
                         and latest_bar.close <= recent_supp

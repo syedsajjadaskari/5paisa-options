@@ -8,6 +8,7 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 import requests
+from dotenv import load_dotenv
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from trading_platform.brokers.base import BaseBroker
@@ -18,7 +19,7 @@ from trading_platform.core.enums import (
     OperationalMode,
     Timeframe,
 )
-from trading_platform.core.exceptions import BrokerError
+from trading_platform.core.exceptions import BrokerError, LiveTradingPermissionError
 from trading_platform.core.models import Bar, Order, Position
 from trading_platform.data.option_chain import OptionBar
 
@@ -32,9 +33,56 @@ except ImportError:
 TZ_IST = ZoneInfo("Asia/Kolkata")
 TZ_UTC = ZoneInfo("UTC")
 
+# Library and dashboard callers may instantiate the broker directly instead of
+# going through the CLI, so credentials must be loaded consistently. Values
+# are never logged or exposed by this module.
+load_dotenv()
+
 SCRIP_MASTER_URL = "https://Openapi.5paisa.com/VendorsAPI/Service1.svc/ScripMaster/segment/All"
 HISTORICAL_V2_URL = "https://openapi.5paisa.com/V2/historical/"
 SUBSCRIPTION_KEY = "c89fab8d895a426d9e00db380b433027"
+
+
+class _ReadOnlyFivePaisaClientProxy:
+    """Expose market-data SDK methods while blocking every transactional transport."""
+
+    _BLOCKED_METHODS = {
+        "order_request",
+        "place_order",
+        "modify_order",
+        "cancel_order",
+        "bo_order",
+        "modify_bo_order",
+        "cancel_bo_order",
+        "cover_order",
+        "modify_cover_order",
+        "cancel_cover_order",
+        "create_basket",
+        "rename_basket",
+        "delete_basket",
+        "clone_basket",
+        "execute_basket",
+        "add_basket_order",
+        "cancel_bulk_order",
+        "squareoff_all",
+        "position_convertion",
+        "vtt_order",
+        "place_order_bulk",
+    }
+
+    def __init__(self, wrapped: Any) -> None:
+        object.__setattr__(self, "_wrapped", wrapped)
+
+    @staticmethod
+    def _blocked(*args: Any, **kwargs: Any) -> None:
+        raise LiveTradingPermissionError(
+            "5paisa SDK transactional endpoint is blocked by the read-only client boundary."
+        )
+
+    def __getattr__(self, name: str) -> Any:
+        if name in self._BLOCKED_METHODS:
+            return self._blocked
+        return getattr(object.__getattribute__(self, "_wrapped"), name)
 
 
 class FivePaisaBroker(BaseBroker):
@@ -55,48 +103,122 @@ class FivePaisaBroker(BaseBroker):
         self.encryption_key = encryption_key or os.getenv("FIVEPAISA_ENCRYPTION_KEY", "")
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.client: Any = None
+        self._client: Any = None
         self._scrip_df: pd.DataFrame | None = None
         self.access_token: str | None = None
+        self.connection_category: str = "NOT_ATTEMPTED"
+        self.connection_detail: str = ""
+
+    @property
+    def client(self) -> Any:
+        return self._client
+
+    @client.setter
+    def client(self, value: Any) -> None:
+        self._client = None if value is None else _ReadOnlyFivePaisaClientProxy(value)
 
     def connect(self) -> bool:
         """Initialize 5paisa client session."""
         if not self.client_code or not self.user_key:
             self.is_connected = False
+            self.connection_category = "AUTH_FAILED"
+            self.connection_detail = "Required credentials are unavailable"
             return False
 
         if not _HAS_PY5PAISA:
+            self.connection_category = "SDK_UNAVAILABLE"
+            self.connection_detail = "py5paisa is not installed"
             raise BrokerError("py5paisa library is not installed in the current environment.")
 
         try:
+            user_id = os.getenv("FIVEPAISA_USER_ID", self.client_code)
             cred = {
                 "APP_NAME": os.getenv("FIVEPAISA_APP_NAME", "APP"),
                 "APP_SOURCE": os.getenv("FIVEPAISA_APP_SOURCE", "SOURCE"),
-                "USER_ID": self.client_code,
+                "USER_ID": user_id,
                 "PASSWORD": os.getenv("FIVEPAISA_PASSWORD", ""),
                 "USER_KEY": self.user_key,
                 "ENCRYPTION_KEY": self.encryption_key,
             }
             self.client = FivePaisaClient(cred=cred)
-            totp = os.getenv("FIVEPAISA_TOTP_SECRET", "")
-            if totp and hasattr(self.client, "get_totp_session"):
-                pin = os.getenv("FIVEPAISA_PIN", "")
+
+            # Check cached session token
+            token_cache = Path("data/cache/.token_cache.json")
+            if token_cache.exists():
                 try:
-                    self.client.get_totp_session(self.client_code, totp, pin)
-                    self.access_token = getattr(self.client, "access_token", None)
+                    import json
+                    import time
+
+                    with open(token_cache) as f:
+                        data = json.load(f)
+                    if time.time() - data.get("created_at", 0) < 20 * 3600 and data.get(
+                        "access_token"
+                    ):
+                        self.access_token = data["access_token"]
+                        self.client.set_access_token(
+                            self.access_token, data.get("client_code", user_id)
+                        )
+                        self.is_connected = True
+                        self.connection_category = "AUTHENTICATED_CACHED_TOKEN"
+                        self.connection_detail = "Cached token loaded; read-only API validation pending"
+                        return True
+                except Exception as exc:
+                    self.connection_category = "AUTH_FAILED"
+                    self.connection_detail = f"Cached token rejected: {type(exc).__name__}"
+
+            totp = os.getenv("FIVEPAISA_TOTP_SECRET", "").strip()
+            if totp and hasattr(self.client, "get_totp_session"):
+                pin = os.getenv("FIVEPAISA_PIN", "").strip()
+                account_client_code = os.getenv("FIVEPAISA_CLIENT_CODE", self.client_code).strip()
+                totp_code = totp
+                try:
+                    import pyotp
+
+                    if len(totp) > 6:
+                        totp_code = pyotp.TOTP(totp).now()
                 except Exception:
-                    # Non-fatal during offline/research inspection
-                    pass
+                    totp_code = totp
+
+                try:
+                    self.client.get_totp_session(account_client_code, totp_code, pin)
+                    self.access_token = getattr(self.client, "access_token", None)
+                    if self.access_token:
+                        import json
+                        import time
+
+                        token_cache.parent.mkdir(parents=True, exist_ok=True)
+                        with open(token_cache, "w") as f:
+                            json.dump(
+                                {
+                                    "access_token": self.access_token,
+                                    "client_code": account_client_code,
+                                    "created_at": time.time(),
+                                },
+                                f,
+                            )
+                        self.connection_category = "AUTHENTICATED_TOTP"
+                        self.connection_detail = "Fresh TOTP session established"
+                except Exception as exc:
+                    self.connection_category = "AUTH_FAILED"
+                    self.connection_detail = f"TOTP authentication failed: {type(exc).__name__}"
             self.is_connected = bool(self.access_token)
+            if not self.is_connected:
+                self.connection_category = "AUTH_FAILED"
+                if not self.connection_detail:
+                    self.connection_detail = "No usable access token"
             return self.is_connected
         except Exception as e:
             self.is_connected = False
+            self.connection_category = "SDK_OR_NETWORK_FAILED"
+            self.connection_detail = f"{type(e).__name__}: {str(e)[:160]}"
             raise BrokerError(f"Failed to connect to 5paisa: {e}") from e
 
     def disconnect(self) -> None:
         self.is_connected = False
         self.client = None
         self.access_token = None
+        self.connection_category = "DISCONNECTED"
+        self.connection_detail = "Client disconnected"
 
     def get_scrip_master(self, force_refresh: bool = False) -> pd.DataFrame:
         """Download or read cached active Scrip Master (~30MB CSV) from 5paisa."""
@@ -166,7 +288,7 @@ class FivePaisaBroker(BaseBroker):
 
         d_from = pd.to_datetime(from_date)
         d_to = pd.to_datetime(to_date)
-        if (d_to - d_from).days > 180:
+        if interval != "1d" and (d_to - d_from).days > 180:
             raise BrokerError(
                 f"5paisa historical candle request window cannot exceed 180 days (6 months) for intraday data. "
                 f"Requested {(d_to - d_from).days} days ({from_date} to {to_date})."
@@ -280,4 +402,9 @@ class FivePaisaBroker(BaseBroker):
         return []
 
     def get_margins(self) -> dict[str, Any]:
-        return {"available_cash": 0.0, "status": "READ_ONLY"}
+        # Live account observations are never a funding source for PaperBroker.
+        return {
+            "account_namespace": "BROKER_READ_ONLY_OBSERVATION",
+            "available_cash": None,
+            "status": "READ_ONLY_UNAVAILABLE",
+        }

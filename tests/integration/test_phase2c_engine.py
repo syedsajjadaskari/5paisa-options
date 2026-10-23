@@ -81,7 +81,9 @@ def test_orb_underlying_backtest_lifecycle():
     closes = [24820.0, 24835.0, 24880.0]
 
     bars = make_day_bars(start_dt, opens, highs, lows, closes)
-    day_states = {"2024-10-18": {"pdh": 24800.0, "pdl": 24700.0}}
+    day_states = {
+        "2024-10-18": {"pdh": 24800.0, "pdl": 24700.0, "ema_200": 24750.0}
+    }
 
     report = engine.run(strategy, bars, day_context_states=day_states)
 
@@ -184,6 +186,23 @@ def test_options_backtest_execution_with_valid_option_data():
     t_exit = datetime(2024, 10, 18, 9, 30, tzinfo=TZ_IST)
 
     opt_bars = [
+        # This is the signal candle and must never be selected as the entry bar.
+        OptionBar(
+            timestamp=sig_time.astimezone(TZ_UTC),
+            exchange_time=sig_time,
+            trading_date=trade_date,
+            underlying_symbol="NIFTY",
+            expiry_date=exp_date,
+            strike_price=24800.0,
+            option_type="CE",
+            scrip_code=45124,
+            lot_size=25,
+            open=80.0,
+            high=90.0,
+            low=78.0,
+            close=85.0,
+            volume=5000,
+        ),
         OptionBar(
             timestamp=t_entry.astimezone(TZ_UTC),
             exchange_time=t_entry,
@@ -260,6 +279,11 @@ def test_options_backtest_execution_with_valid_option_data():
     assert report.data_coverage_pct == 100.0
     assert report.executable_options_trades_count == 1
     trade = report.trades[0]
+    assert trade.entry_time == t_entry
+    assert trade.entry_premium == 120.5
+    # Slippage is already embedded in entry/exit fill prices and must not be
+    # charged again as a synthetic transaction-cost line item.
+    assert trade.costs.slippage_cost == 0.0
     assert trade.net_pnl > 0
     assert trade.costs.total_transaction_costs > 0
     assert trade.exit_reason == "UNDERLYING_TARGET"

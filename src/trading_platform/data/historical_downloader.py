@@ -144,12 +144,13 @@ class HistoricalDataDownloader:
 
         for c_start, c_end in chunks:
             try:
-                bars = broker.fetch_historical_candles(
-                    scrip_code=self.NIFTY_SPOT_SCRIP_CODE,
-                    timeframe=interval,
-                    start_date=c_start,
-                    end_date=c_end,
+                df_candles = broker.fetch_historical_candles(
+                    scrip_code=int(self.NIFTY_SPOT_SCRIP_CODE),
+                    interval=interval,
+                    from_date=c_start.isoformat(),
+                    to_date=c_end.isoformat(),
                 )
+                bars = broker.parse_nifty_bars(df_candles, interval=interval)
                 all_downloaded_bars.extend(bars)
             except BrokerError:
                 pass

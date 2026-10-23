@@ -1,0 +1,18 @@
+check,observed,status
+rows,75,PASS
+aligned_rows,75,PASS
+future_rows,0,PASS
+duplicate_rows,0,PASS
+ohlc_invalid_rows,0,PASS
+missing_intervals,0,PASS
+max_gap_minutes,5.0,REVIEW
+complete,True,PASS
+intrabar_exact,False,PASS
+first_timestamp,2025-08-06T09:15:00+05:30,REVIEW
+last_timestamp,2025-08-06T15:25:00+05:30,REVIEW
+session_date,2025-08-06,PASS
+source,FIVEPAISA_HISTORICAL,PASS
+source_kind,stored provider OHLC; retrospective replay only,PASS
+expected_complete_bars,75,PASS
+expected_first_timestamp,2025-08-06T09:15:00+05:30,PASS
+expected_last_open_timestamp,2025-08-06T15:25:00+05:30,PASS

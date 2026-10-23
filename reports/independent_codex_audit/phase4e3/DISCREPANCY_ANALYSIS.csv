@@ -1,0 +1,21 @@
+session_date,strategy,evaluated_timestamps,shadow_signal_count,backtest_signal_count,shadow_signal_timestamps,backtest_signal_timestamps,agreement,discrepancy_reason,shadow_block_categories,analysis_scope,discrepancy_action
+2025-08-06,PDS,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-06,ORB,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-06,IRF,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-06,PDR,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-07,PDS,75,0,1,,2025-08-07T09:40:00+05:30,False,SHADOW_CONSERVATIVE_RULEBOOK_GATE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,obtain author confirmation before any signal interpretation
+2025-08-07,ORB,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,none
+2025-08-07,IRF,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,none
+2025-08-07,PDR,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-08,PDS,75,0,1,,2025-08-08T15:10:00+05:30,False,SHADOW_CONSERVATIVE_RULEBOOK_GATE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,obtain author confirmation before any signal interpretation
+2025-08-08,ORB,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-08,IRF,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-08,PDR,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-11,PDS,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-11,ORB,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-11,IRF,75,0,1,,2025-08-11T09:45:00+05:30,False,SHADOW_CONSERVATIVE_RULEBOOK_GATE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,obtain author confirmation before any signal interpretation
+2025-08-11,PDR,75,0,1,,2025-08-11T14:45:00+05:30,False,SHADOW_CONSERVATIVE_RULEBOOK_GATE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,obtain author confirmation before any signal interpretation
+2025-08-12,PDS,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-12,ORB,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none
+2025-08-12,IRF,75,0,1,,2025-08-12T10:30:00+05:30,False,SHADOW_CONSERVATIVE_RULEBOOK_GATE,DATA_READY_CONDITIONS_FALSE|RULEBOOK_AMBIGUITY,historical replay; not live,obtain author confirmation before any signal interpretation
+2025-08-12,PDR,75,0,0,,,True,NONE,DATA_READY_CONDITIONS_FALSE,historical replay; not live,none

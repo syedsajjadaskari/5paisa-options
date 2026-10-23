@@ -1,0 +1,75 @@
+sl_no,row_number,date,manual_entry_time,strategy,manual_outcome,match_classification,tolerance_tier,matched_auto_trade_id,auto_entry_time,time_delta_minutes,auto_method,auto_direction,auto_entry_price,auto_stop_loss,auto_target,auto_exit_time,auto_exit_price,auto_exit_reason,auto_points_pnl,auto_outcome,outcome_agreement,notes
+3,5,2025-09-03,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+4,6,2025-09-05,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+8,10,2025-09-11,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+10,12,2025-09-16,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+13,15,2025-09-24,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+14,16,2025-09-25,09:40,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+16,18,2025-09-29,10:05,IRF,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+17,20,2025-10-01,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+20,23,2025-10-08,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+21,24,2025-10-09,09:45,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+23,26,2025-10-11,09:15,ORB,SL,MISSING_HISTORICAL_DATA,NON_TRADING_DAY,,,,,,,,,,,,,,N/A,Weekend journal entry recorded on Saturday when NSE was closed; zero historical bars.
+24,27,2025-10-15,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+29,32,2025-10-27,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+30,33,2025-10-28,09:30,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+35,39,2025-11-11,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+41,45,2025-11-21,09:40,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+45,49,2025-11-28,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+46,51,2025-12-04,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+47,52,2025-12-05,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+52,57,2025-12-15,12:10,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+53,58,2025-12-17,09:25,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+58,63,2025-12-24,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+63,69,2026-01-02,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+64,70,2026-01-05,09:55,RF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+65,71,2026-01-06,09:55,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+69,75,2026-01-16,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+70,76,2026-01-21,09:35,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+71,77,2026-01-22,09:50,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+76,83,2026-02-03,09:35,IRF,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+82,89,2026-02-14,09:40,IRF,BE,MISSING_HISTORICAL_DATA,NON_TRADING_DAY,,,,,,,,,,,,,,N/A,Weekend journal entry recorded on Saturday when NSE was closed; zero historical bars.
+83,90,2026-02-17,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+85,92,2026-02-20,10:50,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+88,95,2026-02-25,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+93,101,2026-03-06,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+105,114,2026-04-06,10:05,RF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+107,116,2026-04-08,09:50,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+108,117,2026-04-10,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+111,120,2026-04-17,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+113,122,2026-04-21,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+116,125,2026-04-28,11:25,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+125,135,2026-05-20,10:00,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+126,136,2026-05-22,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+128,138,2026-05-26,12:05,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+129,139,2026-05-27,12:00,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+130,140,2026-05-29,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+131,142,2026-06-01,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+134,145,2026-06-03,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+137,148,2026-06-08,09:45,IRF,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+139,150,2026-06-11,09:55,IRF,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+140,151,2026-06-12,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+142,153,2026-06-16,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+151,162,2026-06-30,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+152,164,2026-07-01,10:40,IRF,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+154,166,2026-07-06,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+155,167,2026-07-07,09:40,RF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+156,168,2026-07-08,11:00,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+157,169,2026-07-09,10:45,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+158,170,2026-07-10,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+160,172,2026-07-15,09:15,ORB,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+161,173,2026-07-16,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+163,175,2026-07-21,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+165,177,2026-07-23,09:40,IRF,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+170,182,2026-07-30,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+171,183,2026-07-31,09:40,RF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+175,188,2026-08-07,10:15,IRF,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+176,189,2026-08-10,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+179,192,2026-08-13,09:15,ORB,BE,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+180,193,2026-08-14,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+181,194,2026-08-15,09:15,ORB,Target,MISSING_HISTORICAL_DATA,NON_TRADING_DAY,,,,,,,,,,,,,,N/A,Weekend journal entry recorded on Saturday when NSE was closed; zero historical bars.
+182,195,2026-08-18,09:40,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+185,198,2026-08-22,09:15,ORB,SL,MISSING_HISTORICAL_DATA,NON_TRADING_DAY,,,,,,,,,,,,,,N/A,Weekend journal entry recorded on Saturday when NSE was closed; zero historical bars.
+187,200,2026-08-26,10:05,IRF,Target,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+188,201,2026-08-28,09:15,ORB,SL,MANUAL_ONLY,NO_AUTO_SIGNAL,,,,,,,,,,,,,,N/A,Automated engine rejected setup or emitted no signal matching rulebook criteria.
+189,202,2026-08-29,09:15,ORB,Target,MISSING_HISTORICAL_DATA,NON_TRADING_DAY,,,,,,,,,,,,,,N/A,Weekend journal entry recorded on Saturday when NSE was closed; zero historical bars.

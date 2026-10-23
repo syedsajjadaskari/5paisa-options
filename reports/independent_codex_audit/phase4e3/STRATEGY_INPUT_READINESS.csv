@@ -1,0 +1,6 @@
+strategy,method,evaluated_bars,valid_completed_candles,valid_reference_contexts,incomplete_candle,missing_reference_data,stale_underlying,insufficient_history,rulebook_ambiguity,indicator_not_ready,market_session_restriction,strategy_condition_false,internal_error,signal_eligible,execution_created,readiness
+PDS,METHOD_1,75,75,75,0,0,0,0,0,0,0,75,0,0,0,DATA_READY_CONDITION_FALSE
+PDR,RETEST_BOUNCE,75,75,75,0,0,0,0,0,0,0,75,0,0,0,DATA_READY_CONDITION_FALSE
+ORB,METHOD_1,75,75,75,0,0,0,0,0,0,0,75,0,0,0,DATA_READY_CONDITION_FALSE
+IRF,METHOD_2,75,75,75,0,0,0,0,0,0,0,75,0,0,0,DATA_READY_CONDITION_FALSE
+RF,CANONICAL,75,75,75,0,0,0,0,75,0,0,0,0,0,0,DATA_READY_BUT_RULEBOOK_GATE

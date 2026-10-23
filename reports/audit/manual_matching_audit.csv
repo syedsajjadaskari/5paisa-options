@@ -1,0 +1,191 @@
+sl_no,row_number,date,day_of_week,manual_entry_time,manual_strategy,manual_outcome,is_nse_trading_day,matched_auto_trade_id,auto_entry_time,time_delta_minutes,match_tier,timing_explanation,claim_verification_status
+1,3,2025-09-01,Monday,10:00,IRF,BE,True,IRF_TR_0013,10:35,35.0,GT_10M_AMBIGUOUS,Large timing gap (+35.0m); same-day setup.,VERIFIED_AMBIGUOUS
+2,4,2025-09-02,Tuesday,09:25,PDR,Target,True,PDR_TR_0004,09:30,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+3,5,2025-09-03,Wednesday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+4,6,2025-09-05,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+5,7,2025-09-08,Monday,09:25,RF,BE,True,RF_TR_0007,09:30,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+6,8,2025-09-09,Tuesday,09:40,RF,SL,True,RF_TR_0008,09:40,0.0,EXACT_0M,Exact timestamp alignment.,VERIFIED_MATCH
+7,9,2025-09-10,Wednesday,10:35,IRF,Target,True,IRF_TR_0017,12:25,110.0,GT_10M_AMBIGUOUS,Large timing gap (+110.0m); same-day setup.,VERIFIED_AMBIGUOUS
+8,10,2025-09-11,Thursday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+9,11,2025-09-15,Monday,09:45,RF,SL,True,RF_TR_0010,09:50,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+10,12,2025-09-16,Tuesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+11,13,2025-09-17,Wednesday,09:45,IRF,BE,True,IRF_TR_0020,09:30,15.0,GT_10M_AMBIGUOUS,Large timing gap (+15.0m); same-day setup.,VERIFIED_AMBIGUOUS
+12,14,2025-09-23,Tuesday,10:10,IRF,Target,True,IRF_TR_0021,14:15,245.0,GT_10M_AMBIGUOUS,Large timing gap (+245.0m); same-day setup.,VERIFIED_AMBIGUOUS
+13,15,2025-09-24,Wednesday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+14,16,2025-09-25,Thursday,09:40,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+15,17,2025-09-26,Friday,09:15,ORB,BE,True,ORB_TR_0005,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+16,18,2025-09-29,Monday,10:05,IRF,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+17,20,2025-10-01,Wednesday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+18,21,2025-10-06,Monday,09:30,PDR,Target,True,PDR_TR_0010,09:20,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+19,22,2025-10-07,Tuesday,09:20,PDR,Target,True,PDR_TR_0011,09:25,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+20,23,2025-10-08,Wednesday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+21,24,2025-10-09,Thursday,09:45,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+22,25,2025-10-10,Friday,09:15,ORB,Target,True,ORB_TR_0007,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+23,26,2025-10-11,Saturday,09:15,ORB,SL,False,,,,WEEKEND_NON_TRADING,Saturday entry; NSE market was closed. Zero broker bars.,VERIFIED_WEEKEND_DISCREPANCY
+24,27,2025-10-15,Wednesday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+25,28,2025-10-16,Thursday,09:15,ORB,Target,True,ORB_TR_0009,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+26,29,2025-10-20,Monday,09:15,ORB,SL,True,ORB_TR_0010,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+27,30,2025-10-23,Thursday,09:50,IRF,SL,True,IRF_TR_0027,10:50,60.0,GT_10M_AMBIGUOUS,Large timing gap (+60.0m); same-day setup.,VERIFIED_AMBIGUOUS
+28,31,2025-10-24,Friday,09:15,ORB,SL,True,ORB_TR_0011,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+29,32,2025-10-27,Monday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+30,33,2025-10-28,Tuesday,09:30,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+31,34,2025-10-29,Wednesday,09:40,RF,Target,True,RF_TR_0012,09:45,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+32,35,2025-10-31,Friday,10:15,IRF,Target,True,IRF_TR_0028,10:10,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+33,37,2025-11-03,Monday,10:00,IRF,BE,True,IRF_TR_0029,10:05,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+34,38,2025-11-07,Friday,09:15,ORB,Target,True,ORB_TR_0013,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+35,39,2025-11-11,Tuesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+36,40,2025-11-14,Friday,09:50,IRF,BE,True,IRF_TR_0035,11:20,90.0,GT_10M_AMBIGUOUS,Large timing gap (+90.0m); same-day setup.,VERIFIED_AMBIGUOUS
+37,41,2025-11-17,Monday,09:15,ORB,BE,True,ORB_TR_0014,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+38,42,2025-11-18,Tuesday,11:00,RF,Target,True,RF_TR_0013,11:10,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+39,43,2025-11-19,Wednesday,09:15,ORB,SL,True,ORB_TR_0015,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+40,44,2025-11-20,Thursday,09:45,PDR,Target,True,PDR_TR_0023,09:50,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+41,45,2025-11-21,Friday,09:40,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+42,46,2025-11-24,Monday,09:45,RF,BE,True,RF_TR_0014,09:50,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+43,47,2025-11-25,Tuesday,10:30,IRF,Target,True,IRF_TR_0038,10:45,15.0,GT_10M_AMBIGUOUS,Large timing gap (+15.0m); same-day setup.,VERIFIED_AMBIGUOUS
+44,48,2025-11-27,Thursday,09:35,IRF,SL,True,IRF_TR_0039,09:40,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+45,49,2025-11-28,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+46,51,2025-12-04,Thursday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+47,52,2025-12-05,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+48,53,2025-12-09,Tuesday,09:15,ORB,Target,True,ORB_TR_0017,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+49,54,2025-12-10,Wednesday,09:45,IRF,SL,True,IRF_TR_0044,09:50,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+50,55,2025-12-11,Thursday,10:55,IRF,BE,True,IRF_TR_0045,09:35,80.0,GT_10M_AMBIGUOUS,Large timing gap (+80.0m); same-day setup.,VERIFIED_AMBIGUOUS
+51,56,2025-12-12,Friday,09:15,ORB,BE,True,ORB_TR_0018,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+52,57,2025-12-15,Monday,12:10,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+53,58,2025-12-17,Wednesday,09:25,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+54,59,2025-12-18,Thursday,11:00,IRF,SL,True,IRF_TR_0047,15:10,250.0,GT_10M_AMBIGUOUS,Large timing gap (+250.0m); same-day setup.,VERIFIED_AMBIGUOUS
+55,60,2025-12-19,Friday,09:15,ORB,BE,True,ORB_TR_0019,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+56,61,2025-12-22,Monday,09:15,ORB,Target,True,ORB_TR_0020,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+57,62,2025-12-23,Tuesday,09:50,RF,Target,True,RF_TR_0016,10:00,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+58,63,2025-12-24,Wednesday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+59,64,2025-12-26,Friday,09:30,PDS,Target,True,PDS_TR_0029,09:35,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+60,65,2025-12-30,Tuesday,09:15,ORB,BE,True,ORB_TR_0021,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+61,66,2025-12-31,Wednesday,09:15,ORB,SL,True,ORB_TR_0022,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+62,67,2025-12-31,Wednesday,09:45,PDR,Target,True,PDR_TR_0031,09:20,25.0,GT_10M_AMBIGUOUS,Large timing gap (+25.0m); same-day setup.,VERIFIED_AMBIGUOUS
+63,69,2026-01-02,Friday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+64,70,2026-01-05,Monday,09:55,RF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+65,71,2026-01-06,Tuesday,09:55,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+66,72,2026-01-07,Wednesday,10:15,IRF,BE,True,IRF_TR_0052,10:25,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+67,73,2026-01-12,Monday,09:15,ORB,Target,True,ORB_TR_0025,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+68,74,2026-01-14,Wednesday,09:40,IRF,BE,True,IRF_TR_0053,09:45,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+69,75,2026-01-16,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+70,76,2026-01-21,Wednesday,09:35,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+71,77,2026-01-22,Thursday,09:50,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+72,78,2026-01-27,Tuesday,09:15,ORB,Target,True,ORB_TR_0026,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+73,79,2026-01-28,Wednesday,09:15,ORB,BE,True,ORB_TR_0027,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+74,80,2026-01-30,Friday,10:05,IRF,BE,True,IRF_TR_0058,10:10,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+75,82,2026-02-02,Monday,09:40,IRF,SL,True,IRF_TR_0060,10:10,30.0,GT_10M_AMBIGUOUS,Large timing gap (+30.0m); same-day setup.,VERIFIED_AMBIGUOUS
+76,83,2026-02-03,Tuesday,09:35,IRF,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+77,84,2026-02-05,Thursday,10:20,RF,SL,True,RF_TR_0021,09:30,50.0,GT_10M_AMBIGUOUS,Large timing gap (+50.0m); same-day setup.,VERIFIED_AMBIGUOUS
+78,85,2026-02-06,Friday,12:05,IRF,Target,True,IRF_TR_0062,11:55,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+79,86,2026-02-10,Tuesday,09:50,IRF,SL,True,IRF_TR_0063,13:25,215.0,GT_10M_AMBIGUOUS,Large timing gap (+215.0m); same-day setup.,VERIFIED_AMBIGUOUS
+80,87,2026-02-11,Wednesday,09:50,RF,SL,True,RF_TR_0022,10:40,50.0,GT_10M_AMBIGUOUS,Large timing gap (+50.0m); same-day setup.,VERIFIED_AMBIGUOUS
+81,88,2026-02-12,Thursday,09:15,ORB,BE,True,ORB_TR_0029,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+82,89,2026-02-14,Saturday,09:40,IRF,BE,False,,,,WEEKEND_NON_TRADING,Saturday entry; NSE market was closed. Zero broker bars.,VERIFIED_WEEKEND_DISCREPANCY
+83,90,2026-02-17,Tuesday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+84,91,2026-02-18,Wednesday,09:25,RF,SL,True,RF_TR_0023,09:30,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+85,92,2026-02-20,Friday,10:50,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+86,93,2026-02-23,Monday,09:15,ORB,Target,True,ORB_TR_0031,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+87,94,2026-02-24,Tuesday,09:15,ORB,Target,True,ORB_TR_0032,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+88,95,2026-02-25,Wednesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+89,96,2026-02-26,Thursday,09:35,RF,SL,True,RF_TR_0024,09:40,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+90,97,2026-02-27,Friday,09:15,ORB,Target,True,ORB_TR_0033,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+91,99,2026-03-02,Monday,09:45,IRF,Target,True,IRF_TR_0066,10:05,20.0,GT_10M_AMBIGUOUS,Large timing gap (+20.0m); same-day setup.,VERIFIED_AMBIGUOUS
+92,100,2026-03-05,Thursday,11:00,IRF,Target,True,IRF_TR_0068,11:05,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+93,101,2026-03-06,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+94,102,2026-03-09,Monday,09:15,ORB,Target,True,ORB_TR_0034,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+95,103,2026-03-12,Thursday,09:15,ORB,SL,True,ORB_TR_0035,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+96,104,2026-03-16,Monday,09:50,IRF,Target,True,IRF_TR_0071,09:45,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+97,105,2026-03-17,Tuesday,10:30,IRF,SL,True,IRF_TR_0072,10:35,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+98,106,2026-03-18,Wednesday,09:15,ORB,SL,True,ORB_TR_0036,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+99,107,2026-03-20,Friday,09:35,IRF,Target,True,IRF_TR_0074,11:05,90.0,GT_10M_AMBIGUOUS,Large timing gap (+90.0m); same-day setup.,VERIFIED_AMBIGUOUS
+100,108,2026-03-23,Monday,09:15,ORB,SL,True,ORB_TR_0038,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+101,109,2026-03-25,Wednesday,09:15,ORB,Target,True,ORB_TR_0039,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+102,110,2026-03-27,Friday,09:15,ORB,SL,True,ORB_TR_0040,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+103,111,2026-03-30,Monday,10:05,IRF,Target,True,IRF_TR_0076,10:10,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+104,113,2026-04-02,Thursday,09:15,ORB,SL,True,ORB_TR_0042,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+105,114,2026-04-06,Monday,10:05,RF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+106,115,2026-04-07,Tuesday,09:40,IRF,SL,True,IRF_TR_0078,09:45,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+107,116,2026-04-08,Wednesday,09:50,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+108,117,2026-04-10,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+109,118,2026-04-13,Monday,09:15,ORB,SL,True,ORB_TR_0044,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+110,119,2026-04-16,Thursday,09:15,ORB,SL,True,ORB_TR_0045,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+111,120,2026-04-17,Friday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+112,121,2026-04-20,Monday,11:05,IRF,SL,True,IRF_TR_0081,11:10,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+113,122,2026-04-21,Tuesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+114,123,2026-04-23,Thursday,10:20,IRF,Target,True,IRF_TR_0083,09:35,45.0,GT_10M_AMBIGUOUS,Large timing gap (+45.0m); same-day setup.,VERIFIED_AMBIGUOUS
+115,124,2026-04-27,Monday,10:10,IRF,BE,True,IRF_TR_0084,10:35,25.0,GT_10M_AMBIGUOUS,Large timing gap (+25.0m); same-day setup.,VERIFIED_AMBIGUOUS
+116,125,2026-04-28,Tuesday,11:25,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+117,126,2026-04-30,Thursday,09:15,ORB,Target,True,ORB_TR_0047,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+118,128,2026-05-11,Monday,09:15,ORB,SL,True,ORB_TR_0048,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+119,129,2026-05-04,Monday,09:50,IRF,Target,True,IRF_TR_0086,09:55,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+120,130,2026-05-13,Wednesday,12:20,IRF,Target,True,IRF_TR_0089,12:20,0.0,EXACT_0M,Exact timestamp alignment.,VERIFIED_MATCH
+121,131,2026-05-15,Friday,09:30,IRF,SL,True,IRF_TR_0091,09:35,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+122,132,2026-05-18,Monday,09:15,ORB,Target,True,ORB_TR_0049,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+123,133,2026-05-19,Tuesday,09:15,ORB,BE,True,ORB_TR_0050,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+124,134,2026-05-19,Tuesday,09:35,PDR,BE,True,PDR_TR_0062,09:20,15.0,GT_10M_AMBIGUOUS,Large timing gap (+15.0m); same-day setup.,VERIFIED_AMBIGUOUS
+125,135,2026-05-20,Wednesday,10:00,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+126,136,2026-05-22,Friday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+127,137,2026-05-25,Monday,09:15,ORB,SL,True,ORB_TR_0051,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+128,138,2026-05-26,Tuesday,12:05,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+129,139,2026-05-27,Wednesday,12:00,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+130,140,2026-05-29,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+131,142,2026-06-01,Monday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+132,143,2026-06-02,Tuesday,09:45,IRF,SL,True,IRF_TR_0095,10:15,30.0,GT_10M_AMBIGUOUS,Large timing gap (+30.0m); same-day setup.,VERIFIED_AMBIGUOUS
+133,144,2026-06-02,Tuesday,10:30,PDS,Target,True,PDS_TR_0065,10:35,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+134,145,2026-06-03,Wednesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+135,146,2026-06-04,Thursday,10:30,IRF,SL,True,IRF_TR_0096,13:15,165.0,GT_10M_AMBIGUOUS,Large timing gap (+165.0m); same-day setup.,VERIFIED_AMBIGUOUS
+136,147,2026-06-05,Friday,09:25,PDR,BE,True,PDR_TR_0065,09:30,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+137,148,2026-06-08,Monday,09:45,IRF,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+138,149,2026-06-10,Wednesday,09:15,ORB,BE,True,ORB_TR_0052,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+139,150,2026-06-11,Thursday,09:55,IRF,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+140,151,2026-06-12,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+141,152,2026-06-12,Friday,10:20,PDR,BE,True,PDR_TR_0067,10:10,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+142,153,2026-06-16,Tuesday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+143,154,2026-06-17,Wednesday,10:00,IRF,SL,True,IRF_TR_0100,12:25,145.0,GT_10M_AMBIGUOUS,Large timing gap (+145.0m); same-day setup.,VERIFIED_AMBIGUOUS
+144,155,2026-06-18,Thursday,09:55,IRF,Target,True,IRF_TR_0101,10:00,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+145,156,2026-06-19,Friday,10:15,IRF,Target,True,IRF_TR_0102,10:25,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+146,157,2026-06-22,Monday,09:15,ORB,BE,True,ORB_TR_0053,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+147,158,2026-06-23,Tuesday,10:10,IRF,BE,True,IRF_TR_0104,11:50,100.0,GT_10M_AMBIGUOUS,Large timing gap (+100.0m); same-day setup.,VERIFIED_AMBIGUOUS
+148,159,2026-06-24,Wednesday,09:40,IRF,Target,True,IRF_TR_0105,09:45,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+149,160,2026-06-25,Thursday,09:25,IRF,SL,True,IRF_TR_0106,09:30,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+150,161,2026-06-29,Monday,10:45,IRF,Target,True,IRF_TR_0107,10:35,10.0,LE_10M,Minor entry timing difference (+10.0m).,VERIFIED_MATCH
+151,162,2026-06-30,Tuesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+152,164,2026-07-01,Wednesday,10:40,IRF,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+153,165,2026-07-02,Thursday,09:15,ORB,Target,True,ORB_TR_0054,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+154,166,2026-07-06,Monday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+155,167,2026-07-07,Tuesday,09:40,RF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+156,168,2026-07-08,Wednesday,11:00,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+157,169,2026-07-09,Thursday,10:45,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+158,170,2026-07-10,Friday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+159,171,2026-07-14,Tuesday,09:35,IRF,Target,True,IRF_TR_0111,09:40,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+160,172,2026-07-15,Wednesday,09:15,ORB,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+161,173,2026-07-16,Thursday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+162,174,2026-07-17,Friday,09:15,ORB,Target,True,ORB_TR_0056,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+163,175,2026-07-21,Tuesday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+164,176,2026-07-22,Wednesday,09:15,ORB,Target,True,ORB_TR_0057,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+165,177,2026-07-23,Thursday,09:40,IRF,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+166,178,2026-07-23,Thursday,10:10,PDS,Target,True,PDS_TR_0073,10:15,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+167,179,2026-07-24,Friday,11:00,IRF,BE,True,IRF_TR_0115,13:45,165.0,GT_10M_AMBIGUOUS,Large timing gap (+165.0m); same-day setup.,VERIFIED_AMBIGUOUS
+168,180,2026-07-28,Tuesday,09:15,ORB,SL,True,ORB_TR_0058,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+169,181,2026-07-29,Wednesday,09:15,ORB,Target,True,ORB_TR_0059,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+170,182,2026-07-30,Thursday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+171,183,2026-07-31,Friday,09:40,RF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+172,185,2026-08-03,Monday,10:30,IRF,SL,True,IRF_TR_0119,10:10,20.0,GT_10M_AMBIGUOUS,Large timing gap (+20.0m); same-day setup.,VERIFIED_AMBIGUOUS
+173,186,2026-08-05,Wednesday,09:35,RF,SL,True,RF_TR_0032,09:40,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+174,187,2026-08-06,Thursday,09:55,IRF,BE,True,IRF_TR_0120,10:00,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+175,188,2026-08-07,Friday,10:15,IRF,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+176,189,2026-08-10,Monday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+177,190,2026-08-11,Tuesday,09:15,ORB,Target,True,ORB_TR_0061,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+178,191,2026-08-12,Wednesday,09:15,ORB,SL,True,ORB_TR_0062,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+179,192,2026-08-13,Thursday,09:15,ORB,BE,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+180,193,2026-08-14,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+181,194,2026-08-15,Saturday,09:15,ORB,Target,False,,,,WEEKEND_NON_TRADING,Saturday entry; NSE market was closed. Zero broker bars.,VERIFIED_WEEKEND_DISCREPANCY
+182,195,2026-08-18,Tuesday,09:40,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+183,196,2026-08-19,Wednesday,09:15,ORB,Target,True,ORB_TR_0063,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH
+184,197,2026-08-21,Friday,09:40,RF,SL,True,RF_TR_0034,09:40,0.0,EXACT_0M,Exact timestamp alignment.,VERIFIED_MATCH
+185,198,2026-08-22,Saturday,09:15,ORB,SL,False,,,,WEEKEND_NON_TRADING,Saturday entry; NSE market was closed. Zero broker bars.,VERIFIED_WEEKEND_DISCREPANCY
+186,199,2026-08-25,Tuesday,09:35,IRF,BE,True,IRF_TR_0123,09:40,5.0,LE_5M,Next-bar open entry delta (+5.0m).,VERIFIED_MATCH
+187,200,2026-08-26,Wednesday,10:05,IRF,Target,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+188,201,2026-08-28,Friday,09:15,ORB,SL,True,,,,MANUAL_ONLY,"Mechanical rules rejected setup (candle quality, wick, body, or 200 EMA filter).",VERIFIED_MANUAL_ONLY
+189,202,2026-08-29,Saturday,09:15,ORB,Target,False,,,,WEEKEND_NON_TRADING,Saturday entry; NSE market was closed. Zero broker bars.,VERIFIED_WEEKEND_DISCREPANCY
+190,203,2026-08-31,Monday,09:15,ORB,Target,True,ORB_TR_0065,09:20,5.0,LE_5M,ORB 09:15 candle open reference vs 09:20 candle close execution.,VERIFIED_MATCH

@@ -70,11 +70,10 @@ class PDRStrategy(BaseStrategy):
         # Gather previous day levels from context state
         pdh = context.state.get("pdh")
         prev_close = context.state.get("prev_close")
-        # Resistance zone lower boundary (defaults to pdh - 15 if body not explicitly given)
-        pd_res_body = context.state.get("pd_res_body", (pdh - 15.0) if pdh is not None else None)
+        pd_res_body = context.state.get("pd_res_body")
 
-        if pdh is None or prev_close is None:
-            # Cannot trade PDR without verified previous day resistance & close
+        if pdh is None or prev_close is None or pd_res_body is None:
+            # Cannot trade PDR without the verified prior resistance zone and close.
             return None
 
         # 1. First Bar: Gap-Up Gatekeeper Check
@@ -93,10 +92,11 @@ class PDRStrategy(BaseStrategy):
 
         # 2. Zone Retest Check
         zone_top = pdh
-        zone_bottom = pd_res_body if pd_res_body is not None else (zone_top - 15.0)
+        zone_bottom = pd_res_body
 
-        # Retest occurs if bar Low dips into or touches zone (or within 5 pt proximity)
-        if latest_bar.low <= (zone_top + 5.0) and latest_bar.high >= zone_bottom:
+        # Retest occurs if bar Low dips into or touches zone (or within proximity)
+        zone_buffer = float(self.config.get("zone_buffer_points", self.config.get("zone_proximity_pts", 5.0)))
+        if latest_bar.low <= (zone_top + zone_buffer) and latest_bar.high >= zone_bottom:
             state["zone_tested"] = True
 
         # 3. Confirmation Trigger: After zone tested, look for bullish green candle closing up

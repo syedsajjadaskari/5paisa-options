@@ -3,6 +3,8 @@
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from trading_platform.data.calendar import NSECalendar
 
 TZ_IST = ZoneInfo("Asia/Kolkata")
@@ -39,3 +41,36 @@ def test_nse_regular_trading_minutes():
 def test_expected_bars_count():
     cal = NSECalendar()
     assert cal.get_expected_5min_bars_count() == 75
+
+
+@pytest.mark.parametrize(
+    "holiday",
+    [
+        date(2026, 1, 15),
+        date(2026, 3, 26),
+        date(2026, 3, 31),
+        date(2026, 5, 28),
+        date(2026, 6, 26),
+        date(2026, 9, 14),
+        date(2026, 11, 10),
+    ],
+)
+def test_authoritative_2026_fo_holidays(holiday):
+    """Dates published in NSE/FAOP/71777 (plus the Jan 15 update) are closed."""
+    assert NSECalendar().is_trading_day(holiday) is False
+
+
+@pytest.mark.parametrize(
+    "regular_day",
+    [
+        date(2026, 2, 17),
+        date(2026, 3, 20),
+        date(2026, 3, 27),
+        date(2026, 5, 27),
+        date(2026, 6, 25),
+        date(2026, 11, 9),
+    ],
+)
+def test_removed_incorrect_2026_holidays_are_regular_weekdays(regular_day):
+    """Previously hard-coded shifted dates must not be treated as exchange holidays."""
+    assert NSECalendar().is_trading_day(regular_day) is True

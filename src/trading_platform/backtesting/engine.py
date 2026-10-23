@@ -72,15 +72,24 @@ class UnderlyingBacktestReport:
 class UnderlyingBacktestEngine:
     """Backtests pure NIFTY 50 index point-based strategies without lookahead bias."""
 
-    def __init__(self, slippage_points: float = 0.50, eod_exit_time: time = time(15, 15)) -> None:
+    def __init__(
+        self,
+        slippage_points: float = 0.50,
+        eod_exit_time: time = time(15, 15),
+        entry_cutoff_time: time = time(14, 30),
+        trailing_stop_policy: str | None = None,
+    ) -> None:
         self.slippage_points = slippage_points
         self.eod_exit_time = eod_exit_time
+        self.entry_cutoff_time = entry_cutoff_time
+        self.trailing_stop_policy = trailing_stop_policy
 
     def run(
         self,
         strategy: BaseStrategy,
         bars: list[Bar],
         day_context_states: dict[str, dict[str, Any]] | None = None,
+        daily_history_bars: list[Bar] | None = None,
     ) -> UnderlyingBacktestReport:
         """Execute underlying backtest over a sequence of 5-minute historical bars."""
         if not bars:
@@ -111,7 +120,9 @@ class UnderlyingBacktestEngine:
         from trading_platform.data.reference_levels import ReferenceLevelCalculator
 
         calculator = ReferenceLevelCalculator()
-        enriched_contexts = calculator.enrich_bars_with_context(bars)
+        enriched_contexts = calculator.enrich_bars_with_context(
+            bars, daily_history_bars=daily_history_bars
+        )
         enriched_map = {ctx.bar.exchange_time: ctx for ctx in enriched_contexts}
 
         for bar in bars:
@@ -148,24 +159,49 @@ class UnderlyingBacktestEngine:
 
             # 1. If we have a pending signal confirmed at previous bar close, enter at this bar's Open
             if pending_signal is not None and active_trade is None:
-                if pending_signal.direction == SignalDirection.BUY:
+                if bar.exchange_time.time() >= self.entry_cutoff_time:
+                    pending_signal = None
+                elif pending_signal.direction == SignalDirection.BUY:
                     entry_p = round(bar.open + self.slippage_points, 2)
-                else:
+                elif pending_signal.direction == SignalDirection.SELL:
                     entry_p = round(bar.open - self.slippage_points, 2)
+                else:
+                    pending_signal = None
 
-                active_trade = {
-                    "trade_id": f"{strategy.name}_TR_{trade_counter:04d}",
-                    "signal": pending_signal,
-                    "entry_time": bar.exchange_time,
-                    "entry_price": entry_p,
-                    "date": bar.exchange_time.date(),
-                    "target": pending_signal.target,
-                    "stop_loss": pending_signal.stop_loss,
-                    "direction": pending_signal.direction,
-                    "method": pending_signal.metadata.get("method", "DEFAULT"),
-                }
-                trade_counter += 1
-                pending_signal = None
+                if pending_signal is not None:
+                    # Strategy risk parameters are fixed distances from the executed
+                    # entry, not absolute prices frozen at the prior signal close.
+                    # Rebase after any next-bar gap and entry slippage.
+                    target_points = float(
+                        pending_signal.metadata.get(
+                            "target_points", pending_signal.reward_points
+                        )
+                    )
+                    stop_points = float(
+                        pending_signal.metadata.get(
+                            "stop_points", pending_signal.risk_points
+                        )
+                    )
+                    if pending_signal.direction == SignalDirection.BUY:
+                        executed_target = round(entry_p + target_points, 2)
+                        executed_stop = round(entry_p - stop_points, 2)
+                    else:
+                        executed_target = round(entry_p - target_points, 2)
+                        executed_stop = round(entry_p + stop_points, 2)
+
+                    active_trade = {
+                        "trade_id": f"{strategy.name}_TR_{trade_counter:04d}",
+                        "signal": pending_signal,
+                        "entry_time": bar.exchange_time,
+                        "entry_price": entry_p,
+                        "date": bar.exchange_time.date(),
+                        "target": executed_target,
+                        "stop_loss": executed_stop,
+                        "direction": pending_signal.direction,
+                        "method": pending_signal.metadata.get("method", "DEFAULT"),
+                    }
+                    trade_counter += 1
+                    pending_signal = None
 
             # 2. If we have an active position, evaluate exits on current bar
             if active_trade is not None:
@@ -200,7 +236,11 @@ class UnderlyingBacktestEngine:
                     active_trade = None
 
             # 3. Process bar through strategy to see if a new signal confirms at this bar's close
-            if active_trade is None and pending_signal is None:
+            if (
+                active_trade is None
+                and pending_signal is None
+                and bar.exchange_time.time() < self.entry_cutoff_time
+            ):
                 sig = strategy.on_bar(context, bar)
                 if sig is not None and sig.direction != SignalDirection.HOLD:
                     pending_signal = sig
@@ -225,9 +265,37 @@ class UnderlyingBacktestEngine:
             )
             return {"should_exit": True, "exit_price": exit_p, "reason": "EOD_SQUAREOFF"}
 
+        # Optional Trailing Stop Policy Evaluation (e.g. Move to BE at +30 / +40 pts)
+        if self.trailing_stop_policy is not None:
+            entry_p = active_trade["entry_price"]
+            if direction == SignalDirection.BUY:
+                if self.trailing_stop_policy == "MOVE_TO_BE_AT_30" and bar.high >= entry_p + 30.0:
+                    active_trade["stop_loss"] = max(stop, entry_p)
+                    active_trade["is_trailing_be"] = True
+                    stop = active_trade["stop_loss"]
+                elif self.trailing_stop_policy == "MOVE_TO_BE_AT_40" and bar.high >= entry_p + 40.0:
+                    active_trade["stop_loss"] = max(stop, entry_p)
+                    active_trade["is_trailing_be"] = True
+                    stop = active_trade["stop_loss"]
+            elif direction == SignalDirection.SELL:
+                if self.trailing_stop_policy == "MOVE_TO_BE_AT_30" and bar.low <= entry_p - 30.0:
+                    active_trade["stop_loss"] = min(stop, entry_p)
+                    active_trade["is_trailing_be"] = True
+                    stop = active_trade["stop_loss"]
+                elif self.trailing_stop_policy == "MOVE_TO_BE_AT_40" and bar.low <= entry_p - 40.0:
+                    active_trade["stop_loss"] = min(stop, entry_p)
+                    active_trade["is_trailing_be"] = True
+                    stop = active_trade["stop_loss"]
+
         if direction == SignalDirection.BUY:
             hit_sl = bar.low <= stop
             hit_tp = bar.high >= target
+
+            sl_reason = (
+                "TRAILING_STOP_BE"
+                if active_trade.get("is_trailing_be", False) and stop == active_trade["entry_price"]
+                else "STOP_LOSS"
+            )
 
             if hit_sl and hit_tp:
                 # Same-bar conflict: conservative worst-case SL priority
@@ -243,7 +311,7 @@ class UnderlyingBacktestEngine:
                     exit_p = round(bar.open - self.slippage_points, 2)  # Gap through stop
                 else:
                     exit_p = round(stop - self.slippage_points, 2)
-                return {"should_exit": True, "exit_price": exit_p, "reason": "STOP_LOSS"}
+                return {"should_exit": True, "exit_price": exit_p, "reason": sl_reason}
             elif hit_tp:
                 exit_p = round(target, 2)
                 return {"should_exit": True, "exit_price": exit_p, "reason": "TARGET"}
@@ -251,6 +319,12 @@ class UnderlyingBacktestEngine:
         elif direction == SignalDirection.SELL:
             hit_sl = bar.high >= stop
             hit_tp = bar.low <= target
+
+            sl_reason = (
+                "TRAILING_STOP_BE"
+                if active_trade.get("is_trailing_be", False) and stop == active_trade["entry_price"]
+                else "STOP_LOSS"
+            )
 
             if hit_sl and hit_tp:
                 exit_p = round(max(bar.open, stop) + self.slippage_points, 2)
@@ -265,7 +339,7 @@ class UnderlyingBacktestEngine:
                     exit_p = round(bar.open + self.slippage_points, 2)  # Gap through stop
                 else:
                     exit_p = round(stop + self.slippage_points, 2)
-                return {"should_exit": True, "exit_price": exit_p, "reason": "STOP_LOSS"}
+                return {"should_exit": True, "exit_price": exit_p, "reason": sl_reason}
             elif hit_tp:
                 exit_p = round(target, 2)
                 return {"should_exit": True, "exit_price": exit_p, "reason": "TARGET"}
@@ -410,7 +484,7 @@ class OptionsBacktestEngine:
             bar_map = {b.exchange_time: b for b in contract_bars}
 
             # Locate next bar after signal
-            sorted_times = sorted([t for t in bar_map.keys() if t >= sig.timestamp])
+            sorted_times = sorted([t for t in bar_map.keys() if t > sig.timestamp])
             if not sorted_times:
                 rej = f"NO_NEXT_BAR: No candle at or after {sig.timestamp} for {contract.tradingsymbol}"
                 rejections.append(rej)

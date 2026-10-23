@@ -1,14 +1,48 @@
-# Paper Trading Configuration
-enabled: true
-initial_virtual_balance: 500000.0 # ₹5 Lakhs
-currency: "INR"
+# Production-Grade NIFTY Options Paper Trading Configuration
 
-order_execution:
-  simulate_slippage: true
-  slippage_points: 1.0
-  simulate_latency_ms: 150
-  fill_probability: 0.98
+trading:
+  mode: LIVE_READ_ONLY
+  paper_execution_enabled: false
+  underlying: NIFTY 50
+  broker_data_source: FIVEPAISA
+  broker_execution_enabled: false
 
-notifications:
-  log_trades: true
-  alert_on_execution: true
+portfolio:
+  starting_capital_inr: 250000
+  maximum_lots_per_trade: 2
+  maximum_concurrent_positions: 1
+  long_options_only: true
+  allow_overnight_positions: false
+  entry_cutoff_ist: "14:30"
+  square_off_ist: "15:15"
+
+strategies:
+  PDS:
+    enabled: true
+    method: METHOD_1
+  ORB:
+    enabled: true
+    method: METHOD_1
+  IRF:
+    enabled: true
+    method: METHOD_2
+  PDR:
+    enabled: true
+    method: RETEST_BOUNCE
+  RF:
+    enabled: false
+
+options:
+  initial_selection: ATM
+  minimum_days_to_expiry: 0
+  maximum_quote_age_seconds: 5
+  maximum_bid_ask_spread_percent: 2.0
+  verified_archive_dir: data/processed/options_archive_verified
+  maximum_lots: 2
+
+risk:
+  daily_loss_limit_percent: 2.0
+  maximum_open_premium_allocation_percent: 20.0
+  stop_new_entries_after_daily_limit: true
+  reject_missing_quotes: true
+  reject_stale_quotes: true

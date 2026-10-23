@@ -82,6 +82,7 @@ def test_irf_method3_liquidity_sweep() -> None:
     """Method 3: Pierces beyond IRH with 60-70% wick above IRH, red candle closes below IRH."""
     strat = IRFStrategy(config={"method": "METHOD_3"})
     ctx = StrategyContext()
+    ctx.state["recent_swing_low"] = 24870.0
 
     d = date(2024, 10, 18)
     # 09:15 - IR (IRH = 24900)

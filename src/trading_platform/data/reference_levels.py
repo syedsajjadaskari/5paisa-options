@@ -74,15 +74,19 @@ class ReferenceLevelCalculator:
         self.dma_warmup_period = dma_warmup_period
 
     def compute_daily_reference_levels(
-        self, historical_bars: list[Bar]
+        self,
+        historical_bars: list[Bar],
+        daily_history_bars: list[Bar] | None = None,
     ) -> dict[date, SessionReferenceLevels]:
         """Aggregate completed historical bars by day and compute prior-day reference levels and 200 DMA."""
-        if not historical_bars:
+        if not historical_bars and not daily_history_bars:
             return {}
 
-        # 1. Group bars by date
+        # 1. Group intraday bars by date and compute candle-derived zone bodies.
         bars_by_day: dict[date, list[Bar]] = {}
         for b in historical_bars:
+            if not time(9, 15) <= b.exchange_time.time() <= time(15, 25):
+                continue
             d = b.exchange_time.date()
             if d not in bars_by_day:
                 bars_by_day[d] = []
@@ -90,8 +94,7 @@ class ReferenceLevelCalculator:
 
         sorted_days = sorted(bars_by_day.keys())
 
-        # 2. Compute completed daily summary bars
-        daily_summaries: list[dict[str, Any]] = []
+        intraday_summaries: dict[date, dict[str, Any]] = {}
         for d in sorted_days:
             day_bars = sorted(bars_by_day[d], key=lambda x: x.exchange_time)
             day_high = max(b.high for b in day_bars)
@@ -107,35 +110,49 @@ class ReferenceLevelCalculator:
             low_candle = next(b for b in day_bars if b.low == day_low)
             supp_body = min(low_candle.open, low_candle.close)
 
-            daily_summaries.append(
-                {
-                    "date": d,
-                    "open": day_open,
-                    "high": day_high,
-                    "low": day_low,
-                    "close": day_close,
-                    "res_body": res_body,
-                    "supp_body": supp_body,
-                }
-            )
+            intraday_summaries[d] = {
+                "date": d,
+                "open": day_open,
+                "high": day_high,
+                "low": day_low,
+                "close": day_close,
+                "res_body": res_body,
+                "supp_body": supp_body,
+            }
 
-        # 3. Calculate prior-day reference levels and 200 DMA (anti-lookahead: day i uses day < i)
+        # Official daily bars are the source of PDH/PDL/PDC/PDO and the DMA
+        # whenever supplied.  Intraday data remains the only valid source for
+        # the body of the candle that formed the high/low zone.
+        official_daily: dict[date, dict[str, Any]] = {}
+        for db in sorted(daily_history_bars or [], key=lambda x: x.exchange_time):
+            d = db.exchange_time.date()
+            official_daily[d] = {
+                "date": d,
+                "open": db.open,
+                "high": db.high,
+                "low": db.low,
+                "close": db.close,
+            }
+
+        reference_daily = official_daily or intraday_summaries
+
+        # 2. Calculate prior-day reference levels and 200 DMA.  Every value for
+        # day D is selected strictly from dates less than D.
         session_levels: dict[date, SessionReferenceLevels] = {}
+        reference_dates = sorted(reference_daily)
 
-        for i, curr_day in enumerate(daily_summaries):
-            curr_date = curr_day["date"]
-            if i == 0:
-                # First day has no prior day context
+        for curr_date in sorted_days:
+            prior_dates = [d for d in reference_dates if d < curr_date]
+            if not prior_dates:
                 session_levels[curr_date] = SessionReferenceLevels(
                     trading_date=curr_date,
                     daily_history_count=0,
                 )
                 continue
 
-            prev_day = daily_summaries[i - 1]
-
-            # 200 DMA strictly uses closes of completed previous sessions
-            prior_closes = [d["close"] for d in daily_summaries[:i]]
+            prev_date = prior_dates[-1]
+            prev_day = reference_daily[prev_date]
+            prior_closes = [reference_daily[d]["close"] for d in prior_dates]
             has_dma_warmup = len(prior_closes) >= self.dma_warmup_period
 
             dma_200 = None
@@ -144,14 +161,15 @@ class ReferenceLevelCalculator:
                     sum(prior_closes[-self.dma_warmup_period :]) / self.dma_warmup_period, 2
                 )
 
+            intraday_prev = intraday_summaries.get(prev_date)
             session_levels[curr_date] = SessionReferenceLevels(
                 trading_date=curr_date,
                 pdh=prev_day["high"],
                 pdl=prev_day["low"],
                 pdc=prev_day["close"],
                 pdo=prev_day["open"],
-                pd_res_body=prev_day["res_body"],
-                pd_supp_body=prev_day["supp_body"],
+                pd_res_body=intraday_prev["res_body"] if intraday_prev else None,
+                pd_supp_body=intraday_prev["supp_body"] if intraday_prev else None,
                 dma_200=dma_200,
                 has_sufficient_dma_warmup=has_dma_warmup,
                 daily_history_count=len(prior_closes),
@@ -163,13 +181,16 @@ class ReferenceLevelCalculator:
         self,
         historical_bars: list[Bar],
         daily_levels: dict[date, SessionReferenceLevels] | None = None,
+        daily_history_bars: list[Bar] | None = None,
     ) -> list[BarMarketContext]:
         """Iterate bar-by-bar in chronological order and compute point-in-time context."""
         if not historical_bars:
             return []
 
         sorted_bars = sorted(historical_bars, key=lambda x: x.exchange_time)
-        session_levels_map = daily_levels or self.compute_daily_reference_levels(sorted_bars)
+        session_levels_map = daily_levels or self.compute_daily_reference_levels(
+            sorted_bars, daily_history_bars=daily_history_bars
+        )
 
         enriched_context: list[BarMarketContext] = []
 

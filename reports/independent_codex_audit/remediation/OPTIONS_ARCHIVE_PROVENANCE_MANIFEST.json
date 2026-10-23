@@ -1,0 +1,20 @@
+{
+  "duckdb": {
+    "categories": "not classified",
+    "nonpositive_price_rows": 270,
+    "path": "/Users/syedaskari/project/5paisa-options/data/processed/paper_trading.duckdb",
+    "provider_equals_receipt": 8257,
+    "rows": 8257
+  },
+  "file_count": 164,
+  "generated_at_ist": "2026-10-22T11:38:58.392284+05:30",
+  "paper_fill_policy": "Only VALID_EXCHANGE_TIMESTAMPED rows with positive two-sided quotes and verified contract metadata may be used",
+  "row_classification": {
+    "INVALID_PRICE": 250,
+    "RECEIPT_TIMESTAMP_ONLY": 7890
+  },
+  "row_count": 8140,
+  "source": "/Users/syedaskari/project/5paisa-options/data/processed/options_archive",
+  "source_policy": "READ_ONLY; originals preserved; all legacy partitions with no authoritative exchange timestamp are quarantined",
+  "verified_collection_path": "data/processed/options_archive_verified"
+}

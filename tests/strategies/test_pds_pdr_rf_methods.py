@@ -32,6 +32,7 @@ def test_pds_method1_gap_down_strong_red_candle() -> None:
     strat = PDSStrategy(config={"method": "METHOD_1"})
     ctx = StrategyContext()
     ctx.state["pdl"] = 24800.0
+    ctx.state["pd_supp_body"] = 24815.0
     ctx.state["prev_close"] = 24850.0  # Gap down open (< 24850)
 
     d = date(2024, 10, 18)
@@ -54,6 +55,7 @@ def test_pds_method2_hpr_pin_bar() -> None:
     strat = PDSStrategy(config={"method": "METHOD_2"})
     ctx = StrategyContext()
     ctx.state["pdl"] = 24800.0
+    ctx.state["pd_supp_body"] = 24815.0
     ctx.state["prev_close"] = 24850.0
 
     d = date(2024, 10, 18)
@@ -74,6 +76,7 @@ def test_pdr_gap_up_retest_bounce() -> None:
     strat = PDRStrategy()
     ctx = StrategyContext()
     ctx.state["pdh"] = 24800.0
+    ctx.state["pd_res_body"] = 24790.0
     ctx.state["prev_close"] = 24750.0  # Gap up open (> 24750)
 
     d = date(2024, 10, 18)
@@ -113,5 +116,38 @@ def test_rf_uptrend_gap_up_reclaim() -> None:
 
     assert sig is not None
     assert sig.direction == SignalDirection.BUY
-    assert sig.method_id == "RF_CANONICAL_RECLAIM_LONG"
+    assert sig.method_id == "RF_EXPERIMENTAL_60_POINT_RECLAIM_LONG"
     assert sig.target == 24805.0 + 60.0
+
+
+def test_pds_method3_requires_weak_red_then_support_break() -> None:
+    """Method 3 arms only after a weak red zone rejection, then its low breaks."""
+    strat = PDSStrategy(config={"method": "METHOD_3"})
+    ctx = StrategyContext()
+    ctx.state.update(
+        {"pdl": 24800.0, "pd_supp_body": 24815.0, "prev_close": 24850.0}
+    )
+    d = date(2024, 10, 18)
+
+    strat.on_bar(ctx, _make_bar(d, 9, 15, 24770.0, 24780.0, 24760.0, 24765.0))
+    weak = _make_bar(d, 9, 20, 24802.0, 24806.0, 24794.0, 24799.0)
+    assert strat.on_bar(ctx, weak) is None
+    breakdown = _make_bar(d, 9, 25, 24799.0, 24800.0, 24788.0, 24790.0)
+    signal = strat.on_bar(ctx, breakdown)
+
+    assert signal is not None
+    assert signal.method_id == "PDS_METHOD_3_SMALL_SUPPORT_BREAK"
+
+
+def test_rf_strict_mode_emits_no_trade_for_open_entry_and_target_rules() -> None:
+    """RF remains disabled canonically because its exact entry and target are open."""
+    strat = RFStrategy(config={"strict_rulebook_mode": True})
+    ctx = StrategyContext()
+    ctx.state.update({"pdh": 24850.0, "prev_close": 24780.0, "ema_200": 24720.0})
+    d = date(2024, 10, 18)
+    strat.on_bar(ctx, _make_bar(d, 9, 15, 24800.0, 24820.0, 24790.0, 24810.0))
+    strat.on_bar(ctx, _make_bar(d, 9, 20, 24810.0, 24812.0, 24770.0, 24775.0))
+    signal = strat.on_bar(
+        ctx, _make_bar(d, 9, 25, 24775.0, 24810.0, 24770.0, 24805.0)
+    )
+    assert signal is None
