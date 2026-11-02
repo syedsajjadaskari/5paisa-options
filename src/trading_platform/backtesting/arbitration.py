@@ -3,6 +3,20 @@
 Implements deterministic portfolio-level exposure, capital constraint policies,
 and signal arbitration (FIFO single-position, priority ordering, multi-position)
 without lookahead bias or retroactive selection.
+
+This is the POST-HOC arbitrator (it filters already-simulated standalone trades).  The
+reference portfolio result of the V3 backtest is the joint chronological simulation in
+``backtesting.portfolio_runner``; this class remains for policy comparisons.
+
+Conventions (engine version V3_PDF_CORRECTED):
+
+* Tie-break: candidates with the same entry time are ordered by the explicit priority list
+  ``constants.PORTFOLIO_PRIORITY`` (PDS, ORB, IRF, PDR), never alphabetically.
+* Capacity boundary is INCLUSIVE: a position stays active while ``exit_time >= entry_time``
+  of the candidate.  Bars are open-stamped, so an intrabar exit in bar t still occupies the
+  slot for a candidate entering at the open of bar t (they would be the same candle).
+* ``slippage_deducted`` is computed from the slippage actually paid on each trade (entry
+  and exit side), not assumed.
 """
 
 from __future__ import annotations
@@ -12,6 +26,7 @@ from datetime import date, datetime, time
 from enum import StrEnum
 from typing import Any
 
+from trading_platform.backtesting.constants import PORTFOLIO_PRIORITY
 from trading_platform.backtesting.engine import UnderlyingTradeRecord
 
 
@@ -69,13 +84,11 @@ class PortfolioArbitrationReport:
 class PortfolioArbitrator:
     """Arbitrates multiple incoming strategy signals under explicit capital and capacity limits."""
 
-    # Predeclared canonical priority hierarchy (zero lookahead; defined before evaluation)
+    # Predeclared canonical priority hierarchy (zero lookahead; defined before evaluation).
+    # Derived from the single constants.PORTFOLIO_PRIORITY list; RF is permanently last.
     CANONICAL_PRIORITY: dict[str, int] = {
-        "PDS": 1,
-        "ORB": 2,
-        "IRF": 3,
-        "PDR": 4,
-        "RF": 5,
+        **{name: i + 1 for i, name in enumerate(PORTFOLIO_PRIORITY)},
+        "RF": len(PORTFOLIO_PRIORITY) + 1,
     }
 
     def __init__(
@@ -111,22 +124,21 @@ class PortfolioArbitrator:
             )
 
         # 1. Deterministic Tie-Breaking Sort
-        # Secondary sort key: Predeclared Lexicographical / Strategy Priority (no future performance)
+        # Secondary sort key: the explicit predeclared strategy priority (no future performance).
+        # Unknown strategies sort after known ones, then alphabetically.
+        def _prio(t: UnderlyingTradeRecord) -> tuple[int, str]:
+            return (self.strategy_priority.get(t.strategy_name, 99), t.strategy_name)
+
         if self.policy == PortfolioArbitrationPolicy.PRIORITY_SINGLE_POSITION:
             sorted_candidates = sorted(
                 candidate_trades,
-                key=lambda t: (
-                    t.date,
-                    t.entry_time,
-                    self.strategy_priority.get(t.strategy_name, 99),
-                    t.trade_id,
-                ),
+                key=lambda t: (t.date, t.entry_time, *_prio(t), t.trade_id),
             )
         else:
-            # Deterministic Lexicographical Tie-Breaker: (entry_time, strategy_name, method, trade_id)
+            # FIFO by entry time; same-time ties broken by the explicit priority list.
             sorted_candidates = sorted(
                 candidate_trades,
-                key=lambda t: (t.entry_time, t.strategy_name, t.method, t.trade_id),
+                key=lambda t: (t.entry_time, *_prio(t), t.method, t.trade_id),
             )
 
         accepted_trades: list[UnderlyingTradeRecord] = []
@@ -160,9 +172,10 @@ class PortfolioArbitrator:
         active_positions: list[UnderlyingTradeRecord] = []
 
         for candidate in sorted_candidates:
-            # Purge positions that have closed at or before candidate entry_time
+            # Keep a position active while exit_time >= candidate entry_time (inclusive boundary:
+            # an intrabar exit stamped with the same bar-open time still blocks a same-bar entry).
             active_positions = [
-                pos for pos in active_positions if pos.exit_time > candidate.entry_time
+                pos for pos in active_positions if pos.exit_time >= candidate.entry_time
             ]
 
             is_accepted = False
@@ -279,7 +292,8 @@ class PortfolioArbitrator:
         wr = (len(wins) / len(accepted)) * 100.0
 
         net_pts = sum(t.points_pnl for t in accepted)
-        slip = len(accepted) * 1.00  # 0.50 entry + 0.50 exit
+        # Slippage actually paid: entry side + exit side of every accepted trade.
+        slip = sum(2.0 * t.slippage_points for t in accepted)
         gross_pts = net_pts + slip
 
         g_wins = sum(t.points_pnl for t in wins)

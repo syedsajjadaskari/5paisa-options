@@ -1,0 +1,8 @@
+SUPERSEDED  (marked 2026-10-29)
+
+AMBIGUOUS_RULE_EXPOSURE.csv quotes the pre-V3 engine ('5-bar swing pivot proxy', '10pt zone buffer',
+62 ORB / 135 IRF signals, ...). A record_status column was appended marking every row
+SUPERSEDED_DO_NOT_USE. Current per-strategy rule exposure: docs/AUTHOR_CONFIRMATION_REQUEST.md and
+docs/STRATEGY_EXECUTION_STATUS.md. Regenerate with scripts/generate_final_paper_decision_artifacts.py.
+
+Byte-exact original: archive/evidence_originals_2026-10-29/reports/paper_trading_live_session/AMBIGUOUS_RULE_EXPOSURE.csv

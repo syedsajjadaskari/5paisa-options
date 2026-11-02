@@ -1,0 +1,98 @@
+# PDR (Previous Day Resistance - gap-up support retest) -- PROVISIONAL interpretations.
+#
+# Source: docs/strategy_rulebooks/PDR_Strategy_Guide.pdf.  Every entry below is a rule the
+# PDF leaves open (no number / no structure).  Values are the ones the frozen baseline code
+# already used, or the literal/neutral reading of the PDF text; none was tuned on backtest
+# results and none is author-approved.  While any of these apply the strategy stays
+# SHADOW_ONLY unless a separately approved research-paper configuration says otherwise.
+#
+# PDF-stated numbers (NOT in this file, NOT provisional): target = 70 points fixed,
+# long (buy) only, 5-minute chart, stop is 35 or 40 points.
+
+zone_proximity_points:
+  value: 5.0
+  status: PROVISIONAL
+  why: >-
+    PDF counts a "very close approach" to the zone as a valid test but gives no number
+    ("a move that stays far from the zone does not qualify").  Applied only above the
+    zone top (price approaching from above).  Value carried over from the baseline code.
+
+stop_points_default:
+  value: 35.0
+  status: PROVISIONAL
+  why: >-
+    PDF: stop is "35 or 40 points, depending on the situation" with no selection rule.
+    35 is the baseline default; the 35/40 choice itself is the unresolved rule.
+
+stop_points_wide:
+  value: 40.0
+  status: PROVISIONAL
+  why: PDF second stop option (40); when it is used is not defined by the PDF.
+
+wide_stop_distance_threshold_points:
+  value: 35.0
+  status: PROVISIONAL
+  why: >-
+    Baseline heuristic (not from the PDF): use the wide stop when the confirmation close
+    is more than this many points above the zone bottom.  The PDF gives no selector.
+
+require_open_above_zone_top:
+  value: true
+  status: PROVISIONAL
+  why: >-
+    PDF: "market must open gap up ... wait for price to come BACK toward the zone".  All
+    five PDF chart examples open above the zone and then pull back into it.  Read as: the
+    day open must be above the zone top.  Gap-up itself (open > previous close) is always
+    required and is stated by the PDF.
+
+allow_same_bar_touch_and_confirm:
+  value: false
+  status: PROVISIONAL
+  why: >-
+    PDF: "after the zone has been tested, wait for a green candle" / "green candle formed
+    after the interaction".  Read literally: the test happens on an earlier completed
+    candle than the confirming green candle.  Setting true lets one candle both touch
+    and confirm.  The 09:15 candle can never be the confirming candle ("do not enter at
+    the open").
+
+require_confirm_close_at_or_above_zone_bottom:
+  value: true
+  status: PROVISIONAL
+  why: >-
+    Not in the PDF.  Baseline "support held" check: the confirming green candle must close
+    at or above the zone bottom.
+
+reset_touch_on_close_below_zone_bottom:
+  value: true
+  status: PROVISIONAL
+  why: >-
+    Not in the PDF.  Prevents a sticky "zone tested" latch: a candle closing below the zone
+    bottom means the zone did not act as support, so the earlier test is discarded and a
+    fresh test is required.
+
+max_bars_between_touch_and_confirm:
+  value: null
+  status: PROVISIONAL
+  why: >-
+    PDF gives no time limit between the zone test and the green candle.  null = no limit
+    (a number would be an invented rule).
+
+max_confirm_distance_above_zone_top_points:
+  value: null
+  status: PROVISIONAL
+  why: >-
+    PDF gives no limit on how far above the zone the confirming candle may close.
+    null = no limit.
+
+max_zone_height_points:
+  value: null
+  status: PROVISIONAL
+  why: >-
+    PDF: the zone is a "small box" but gives no height.  null = no cap.  Zone geometry
+    (body-to-upper-wick of the previous-day high candle) is produced outside this class
+    and the official daily high vs intraday candle mix is an open data-derivation issue.
+
+max_signals_per_day:
+  value: 1
+  status: PROVISIONAL
+  why: "PDF is silent on the number of PDR trades per day (baseline: one signal per day)."

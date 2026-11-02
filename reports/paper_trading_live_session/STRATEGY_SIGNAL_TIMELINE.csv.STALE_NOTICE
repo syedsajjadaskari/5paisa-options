@@ -1,0 +1,6 @@
+STALE  (marked 2026-10-29)
+
+STRATEGY_SIGNAL_TIMELINE.csv holds historical 2026-08-31 SHADOW observation rows evaluated by the
+pre-V3 strategy code (its labels name rules such as 'Retest proximity & 35 vs 40 stop unresolved').
+It is not part of the synthetic fixtures and was not modified. It does not describe what the current
+strategies would have done. Current engine output: reports/backtest/V3_PDF_CORRECTED_20261028T174123Z_523f2825/signals.csv.

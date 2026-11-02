@@ -1,0 +1,16 @@
+SYNTHETIC FIXTURE - NOT MARKET EVENTS, NOT A REAL SESSION  (marked 2026-10-29)
+
+TRADE_EVENT_LOG.csv contains the two scripted trades of the retired run_live_paper_session.py
+(PDS 22,600.00 -> 22,528.50 and ORB 22,680.00 -> 22,648.00 on 2026-10-26). They were
+hard-coded to exercise the accounting/lifecycle code; no strategy produced them and no
+exchange data produced the quotes. CORRECTED_SESSION_RECONCILIATION.md classifies them as
+SYNTHETIC_LIFECYCLE_TEST.
+
+Do not read any figure in this file as a result: the profit, return, win rate, profit factor,
+fills, and 'authentic exchange data' / 'valid two-sided quote' / 'approved ledger' wording in the
+ORIGINAL file were wrong labels. In the labelled copy those tags are replaced by
+SYNTHETIC_FIXTURE_* tokens and a record_class column was appended.
+(The original session's genuine live result: 0 fills, realized P&L 0.00.)
+
+Byte-exact original: archive/evidence_originals_2026-10-29/reports/paper_trading_live_session/TRADE_EVENT_LOG.csv
+Index: reports/paper_trading_live_session/SUPERSEDED_INDEX.md

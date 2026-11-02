@@ -1,0 +1,7 @@
+strategy,manual_trades,eligible_manual_trades,excluded_unsupported_rf,excluded_no_session,excluded_ambiguous,exact,close_le_5min,near_le_10min,different_gt_10min,unmatched,valid_matched_le_10min,signal_match_rate_pct,signal_match_rate_fraction,exact_match_rate_pct,standalone_level_valid_matches,portfolio_level_valid_matches,matched_signals_accepted_by_portfolio,matched_signals_rejected_by_portfolio,outcome_agreement_pct_of_comparable,outcome_agreement_fraction,outcome_agreement_pct_excluding_manual_be,outcome_agreement_excluding_be_fraction,automated_signals_in_journal_range,automated_standalone_trades_in_range,automated_portfolio_trades_in_range,main_mismatch_reasons
+PDS,3,3,0,0,0,2,0,0,0,1,2,66.7,2/3,66.7,2,2,2,0,100.0,2/2,100.0,2/2,16,16,16,Strategy-method mismatch (1)
+ORB,89,85,0,4,0,45,0,0,0,40,45,52.9,45/85,52.9,45,45,45,0,75.6,34/45,97.1,34/35,49,49,49,Strategy-method mismatch (17); Manual discretionary entry (16); Rulebook ambiguity (7)
+IRF,73,72,0,1,0,23,10,7,16,16,40,55.6,40/72,31.9,40,35,35,5,57.5,23/40,85.2,23/27,118,110,90,Strategy-method mismatch (16); Different candle timing (13); Portfolio position conflict (5)
+PDR,8,8,0,0,0,4,0,0,1,3,4,50.0,4/8,50.0,4,4,4,0,75.0,3/4,100.0,3/3,35,34,29,Rulebook ambiguity (3); Different candle timing (1)
+RF,17,0,17,0,0,0,0,0,0,0,0,,0/0,,0,0,0,0,,0/0,,0/0,0,0,0,Unsupported strategy (RF disabled) (17)
+TOTAL,190,168,17,5,0,74,10,7,17,60,91,54.2,91/168,44.0,91,86,86,5,68.1,62/91,92.5,62/67,218,209,184,Strategy-method mismatch (34); Manual discretionary entry (19); Unsupported strategy (RF disabled) (17)

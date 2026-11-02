@@ -1,0 +1,22 @@
+SUPERSEDED - DO NOT SIGN THIS PDF  (marked 2026-10-29)
+
+STRATEGY_AUTHOR_FINAL_SIGNOFF.pdf asks the author to approve rules of an engine that no longer
+exists:
+  * proximity 'Option C (Current Engine Heuristic): within 10.0 index points' - the code uses 5.0;
+  * IRF support 'Option A (Current Heuristic): lowest low of the preceding 5 completed bars' - the
+    code uses the lowest low from the first red candle after the breakout, no lookback;
+  * '360 verified signals; 288 FIFO portfolio trades' - the current engine gives 218 raw signals
+    and 184 portfolio trades in the 2025-09..2026-08 window;
+  * it omits every rule the current engine added (PDS open below zone / close-above-zone
+    invalidation / 09:15 candle excluded / first red candle consumes the approach; PDR open above
+    zone top / test before confirm / confirm closes at or above zone bottom; ORB wick-extreme
+    levels from 5m candles; IRF first-push resistance and strict sequencing; one signal per day);
+  * its footer 'Lead Quant Engineer Verification: Antigravity Quantitative Risk Team - Verified No
+    Real Broker Orders Active' is an attribution the repository cannot back.
+
+Replacement for the author: docs/AUTHOR_CONFIRMATION_REQUEST.md (hand-written, one question per
+provisional rule) and, if a PDF is wanted, the output of
+  python scripts/generate_final_paper_decision_artifacts.py   (writes to
+  reports/paper_trading_live_session/regenerated/, never over this file)
+
+Byte-exact original: archive/evidence_originals_2026-10-29/reports/paper_trading_live_session/STRATEGY_AUTHOR_FINAL_SIGNOFF.pdf

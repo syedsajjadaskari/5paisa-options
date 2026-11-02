@@ -1,0 +1,64 @@
+# IRF (Initial Range Failure) - Method 2 PROVISIONAL interpretations.
+#
+# Source: docs/strategy_rulebooks/IRF_Strategy_Guide Updated.pdf (pp. 7-10, 13-14).  The PDF
+# gives NO number and no precise definition for the entries below.  Every value is either the
+# default the frozen baseline already used (kept UNCHANGED - not tuned, not chosen from backtest
+# P&L) or the single structural reading the code implements.  None is author-approved.  A
+# strategy relying on them stays SHADOW_ONLY unless a separately approved research-paper
+# configuration says otherwise.  Read via strategies.provisional.load_provisional("irf").
+# Structural keys are validated by IRFStrategy: an unsupported value raises ValueError.
+
+min_extension_bars:
+  value: 2
+  status: PROVISIONAL
+  why: PDF p7 says price "extends further upward" after the breakout close but gives no number of
+    bars. Value counts the breakout candle plus extension candles that close above IRH; 2 means the
+    breakout candle plus at least one further close above IRH (baseline default, unchanged).
+
+extension_bar_definition:
+  value: CLOSE_ABOVE_IRH
+  status: PROVISIONAL
+  why: PDF p7 / p13 do not define when a bar counts as "extension". A bar counts when it CLOSES above
+    IRH (wick-only does not, per the PDF's close-based practice). Baseline reading, unchanged.
+
+support_definition:
+  value: LOWEST_LOW_FROM_FIRST_RED_AFTER_BREAKOUT
+  status: PROVISIONAL
+  why: PDF p8 defines recent support only as "a low formed by recent candles during the extension,
+    such as a pullback low" (Figure 3 draws it at the low of the first red pullback candle, below
+    which a later candle closes). Implemented as the lowest low from the first red candle after the
+    breakout candle up to (not including) the evaluated bar. No lookback length is given in the PDF
+    and none is applied. The earlier baseline used the lowest low of ALL post-breakout bars,
+    which Figure 3 contradicts. Equality convention (also provisional) - a candle that closes
+    exactly AT IRH right after the breakout disables Method 2 (close <= IRH) while Method 1 needs
+    a close strictly below IRH; and any gap other than 5 minutes between consecutive bars
+    (DATA_GAP) disables IRF for the day (fail closed). Neither is in the PDF.
+
+resistance_definition:
+  value: HIGHEST_HIGH_OF_FIRST_PUSH
+  status: PROVISIONAL
+  why: PDF p8-9 defines recent resistance as "the top of the first push after the breakout" (Figure 4).
+    Implemented as the highest high from the breakout candle up to (not including) the first red
+    candle after it. It is fixed once that first red candle forms, so later higher highs do not
+    raise it (the baseline's rising maximum made "pushes back above resistance" unobservable).
+
+resistance_push_above_rule:
+  value: PRIOR_BAR_HIGH_ABOVE_RESISTANCE
+  status: PROVISIONAL
+  why: PDF p9 sequence is push back above resistance, red candle forms, red candle closes back below.
+    Implemented as - a bar AFTER the first red candle has HIGH above resistance, and a LATER bar
+    (the trigger, which is red) closes below it. A single bar that both wicks above and closes
+    below is not accepted (strict sequencing, fail closed).
+
+stop_distance_basis:
+  value: GREEN_CANDLE_HIGH
+  status: PROVISIONAL
+  why: PDF p2/p14 pick the Rs 35 or Rs 40 stop by "distance" to the most recent opposite (green)
+    candle but do not say which price of that candle the distance is measured to. Baseline used the
+    green candle's HIGH minus entry (supported alternative - GREEN_CANDLE_CLOSE). Only candles of
+    the same session before the trigger candle are considered.
+
+stop_points_when_no_green_candle:
+  value: 35.0
+  status: PROVISIONAL
+  why: PDF gives no rule when the session has no earlier green candle; the narrower Rs 35 stop is used.

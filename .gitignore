@@ -248,3 +248,6 @@ tokens/
 **/.DS_Store
 
 
+
+# live paper-trading runtime state (journals, checkpoint, snapshot, replay output)
+runtime/

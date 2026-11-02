@@ -25,7 +25,9 @@ def test_historical_reconciliation_auditor_pipeline(tmp_path: Path) -> None:
 
     # 2. Run backtests
     auditor.run_backtests()
-    assert len(auditor.all_automated_trades) > 300
+    # V3_PDF_CORRECTED strategies (PDF-conformant PDS/PDR/ORB/IRF).  The frozen V1/V2 ledgers
+    # (353/332 trades) live untouched under reports/phase2d and reports/independent_codex_audit.
+    assert len(auditor.all_automated_trades) == 230
     assert "ORB" in auditor.backtest_reports
     assert "IRF" in auditor.backtest_reports
     assert "PDS" in auditor.backtest_reports
@@ -38,13 +40,13 @@ def test_historical_reconciliation_auditor_pipeline(tmp_path: Path) -> None:
     weekend_trades = [r for r in auditor.reconciled_trades if r.tolerance_tier == "NON_TRADING_DAY"]
     assert len(weekend_trades) == 5
 
-    # The corrected engine/reference-level semantics produce 89 timing matches
-    # for the pinned source data.  This must not be relaxed to the legacy
-    # 90/91 range, which came from the superseded implementation.
+    # V3_PDF_CORRECTED strategy/reference-level semantics produce 87 timing matches
+    # for the pinned source data (V2 produced 89, the superseded V1 90/91).  PDS matches only
+    # 2 manual-journal trades under the PDF-faithful gap-down/first-red-candle rules.
     matched = [
         r for r in auditor.reconciled_trades if r.tolerance_tier in ("EXACT_0M", "LE_5M", "LE_10M")
     ]
-    assert len(matched) == 89
+    assert len(matched) == 87
 
     # Verify binary outcome agreement
     agreed = [
@@ -52,7 +54,7 @@ def test_historical_reconciliation_auditor_pipeline(tmp_path: Path) -> None:
         for r in auditor.reconciled_trades
         if r.outcome_agreement in ("AGREED_TARGET", "AGREED_SL")
     ]
-    assert len(agreed) in (66, 67)
+    assert len(agreed) == 65
 
     # 4. Compute metrics
     metrics = auditor.calculate_strategy_metrics()

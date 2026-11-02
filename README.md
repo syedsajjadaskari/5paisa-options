@@ -1,101 +1,91 @@
-# Multi-Strategy Algorithmic Trading Research Platform
+# NIFTY Options Virtual Paper Trading (5paisa, read-only)
 
-A professional, modular algorithmic trading research, backtesting, and paper execution platform for Indian Financial Markets (NSE India) specializing in NIFTY 50 intraday strategies and the 5paisa broker.
+A manually launched, fully automated **virtual** paper-trading application for NIFTY options. It reads
+live market data from 5paisa through a **read-only** broker boundary, runs the price-action strategies
+on completed 5-minute candles, and simulates fills, exits, costs and P&L entirely in memory and in a
+tiny runtime journal. **No real order is ever placed**: the 5paisa client is wrapped in an allowlist
+proxy that makes every order/modify/cancel endpoint unreachable.
 
----
+> Start here: **[README_PAPER_TRADING.md](README_PAPER_TRADING.md)** (how to run, configure and read the
+> app) and **[docs/live_app_architecture.md](docs/live_app_architecture.md)** (design contract).
+> Repository cleanup history: **[docs/CLEANUP_MANIFEST.md](docs/CLEANUP_MANIFEST.md)**.
 
-## 1. Executive Summary
+## Strategies and authorization
 
-This platform provides an institutional-grade, research-to-live workflow for 5 canonical price-action strategies:
-- **IRF** — Initial Range Failure (3 entry methods: Breakout & Failure, Extension & Reversal, Liquidity Sweep)
-- **ORB** — Opening Range Breakout (3 entry methods: Major Level Breakout, Trendline & Inner Level, 200 DMA Gap)
-- **PDR** — Previous Day Resistance (Retest Support, Long bias)
-- **PDS** — Previous Day Support (Retest Resistance, 3 entry methods: Good Red Candle, HPR Pin Bar, Small Support Break)
-- **RF** — Reverse Failure (Opposite of IRF, strictly uptrend and gap-up within yesterday's range)
+| strategy | rule modelled | direction |
+|---|---|---|
+| PDS | Previous-Day Support, Method 1 | PE |
+| ORB | Opening Range Breakout, Method 1 | CE / PE |
+| IRF | Initial Range Failure, Method 2 | per signal |
+| PDR | Previous-Day Resistance retest | CE |
+| RF | **disabled** (never evaluated) | - |
 
----
+All four active strategies are **`SHADOW_ONLY` by default** because some rulebook rules are still
+unresolved by the strategy author (see `README_PAPER_TRADING.md` and `configs/live_paper.yaml`; the files
+under `reports/paper_trading_live_session/` are evidence from earlier engine versions, some carry
+SUPERSEDED / STALE / SYNTHETIC notices, and none of them is an instruction).
+In that tier signals are evaluated and journaled but no virtual fill is created. Simulated fills require an
+explicit research-paper opt-in (config acknowledgement plus a CLI flag) and are labelled
+`RESEARCH_PAPER_PROVISIONAL` on every record. A clearly labelled `REPLAY_SIMULATED` mode exists for demos;
+it uses a separate runtime root and never touches the live ledger.
 
-## 2. Platform Architecture & Layering
+## Layout
 
 ```
-trading-platform/
-├── configs/             # Centralized YAML configuration files
-├── docs/                # Architectural docs, specifications & ambiguities
-│   ├── strategy_rulebooks/  # Primary source PDFs
-│   └── strategy_specs/      # Individual markdown specifications
-├── data/                # Raw, processed (Parquet), reference, and samples
-├── src/trading_platform/
-│   ├── core/            # Models, Enums, Events, Market Clock, Exceptions
-│   ├── data/            # Providers, Validation, Storage (DuckDB+Parquet), Calendar
-│   ├── strategies/      # BaseStrategy, StrategyRegistry, Price Action helpers
-│   ├── brokers/         # BaseBroker, PaperBroker, FivePaisaBroker
-│   └── cli.py           # Platform CLI entrypoint
-├── scripts/             # Verification, environment setup, and data import
-└── tests/               # Unit, integration, and strategy test suites
+configs/            live_paper.yaml (live app), strategy_provisional/ (provisional rule values),
+                    app/market/data/risk.yaml + strategies/ (legacy ConfigManager inputs)
+src/trading_platform/
+  live/             the app: engine, risk, ledger, authorization, providers (5paisa, replay),
+                    journal/checkpoint/lock/snapshot, terminal UI
+  dashboard/        Streamlit views (read-only; launched via scripts/paper_trading_dashboard.py)
+  strategies/       PDS, ORB, IRF, PDR (+ RF, disabled) and provisional rule loader
+  backtesting/      historical backtest + portfolio runner (research only)
+  brokers/          read-only 5paisa broker and SDK allowlist proxy
+  data/             calendar, reference levels, candle quality, live feed helpers, historical pipeline
+  options/          ATM/expiry/moneyness helpers, historical contract selection
+  core/ analytics/ optimization/ execution/ (backtest risk manager only)
+scripts/            run_paper_trading.py (manual start), paper_trading_dashboard.py, run_backtest.py,
+                    verify_installation.py, historical download/import, one-shot research/audit scripts
+tests/              live/ (the app), unit/ options/ strategies/ integration/ backtesting/
+docs/               architecture, specifications, rulebooks (docs/strategy_rulebooks/ is read-only evidence)
+data/ reports/      historical datasets and generated evidence (gitignored where large)
+archive/            retired legacy code, tests, configs and duplicate reports (see the manifest)
+runtime/            created at run time (journal, checkpoint, live_state.json); gitignored
 ```
 
----
+There is **no market-data database** in the live path. DuckDB/Parquet remain only for historical research
+(`data/storage.py`, `data/historical_options.py`).
 
-## 3. Environment Setup & Installation
-
-### Prerequisites
-- macOS (Apple Silicon arm64 supported) or Linux
-- Python 3.11+
-- `uv` package manager (recommended) or standard Python `venv`
-
-### Step-by-Step Installation
+## Setup and checks
 
 ```bash
-# 1. Clone/Open the repository
-cd /Users/syedaskari/project/5paisa-options
-
-# 2. Create virtual environment with Python 3.11
-uv venv .venv --python 3.11
-source .venv/bin/activate
-
-# 3. Install dependencies and project in editable mode
+uv venv .venv --python 3.11 && source .venv/bin/activate
 uv pip install -e ".[dev]"
+cp .env.example .env                 # 5paisa credentials (never commit .env)
 
-# 4. Initialize environment variables
-cp .env.example .env
+python scripts/verify_installation.py   # offline check: imports, config, SHADOW_ONLY defaults, read-only boundary
+pytest                                  # archive/ is excluded from collection
+ruff check src tests scripts            # archive/ is excluded from linting
 ```
 
----
+## Safety summary
 
-## 4. Verification and Testing
+1. Broker access is read-only; transactional SDK members raise `ReadOnlyBoundaryError` (a `LiveTradingPermissionError`).
+2. Strategies are deny-by-default (`SHADOW_ONLY`); RF is permanently disabled.
+3. Fills use a fresh post-signal ask plus slippage; exits use the bid. Missing quotes keep an entry/exit
+   pending, never a fabricated fill. Positions are squared off by 15:15 IST; entries stop at 14:30 IST.
+4. Backtests fill on the next bar open and assume stop-loss first on same-bar conflicts.
+5. Credentials and tokens are redacted from logs; `.env` and `data/cache/` are gitignored.
+6. There is **no kill switch**: stop the app with `Ctrl+C` / `kill -TERM`. The `.env.example` risk,
+   `OPERATIONAL_MODE` and `EMERGENCY_KILL_SWITCH` lines and `configs/risk.yaml` / `live_trading.yaml`
+   are legacy and not read by the paper app; its real limits are in `configs/live_paper.yaml`.
+7. `scripts/run_paper_trading.py --doctor` logs in to 5paisa (read-only), downloads the public Scrip
+   Master into `data/cache/` and writes a token cache there; see `README_PAPER_TRADING.md`.
+8. The dashboard binds to localhost only: `streamlit run scripts/paper_trading_dashboard.py
+   --server.address 127.0.0.1` (use `PAPER_RUNTIME_DIR` for a custom `--runtime-dir`).
 
-Execute the following commands from the project root:
+## Retired legacy code
 
-```bash
-# Run the complete Phase 1 subsystem verification check
-python scripts/verify_installation.py
-
-# Run all automated unit and integration tests
-pytest -v
-
-# Run code style and linting checks
-ruff check src tests scripts
-
-# Check CLI commands
-trading-platform status
-trading-platform strategies
-```
-
----
-
-## 5. Sample Data Pipeline (CSV -> Parquet -> DuckDB)
-
-Import the provided NIFTY 50 5-minute sample dataset:
-
-```bash
-python scripts/import_historical_data.py --file data/samples/nifty50_5min_sample.csv --symbol "NIFTY 50" --interval 5m
-```
-
----
-
-## 6. Execution Realism & Safety Safeguards
-
-1. **Default Mode:** Strictly `RESEARCH` and `PAPER`.
-2. **Anti-Lookahead Rules:** Signals are generated at bar close ($t$), and executions are simulated strictly on the **next bar open ($t+1$)**.
-3. **Worst-Case Same-Bar Assumptions:** In the event both Stop-Loss and Target are touched within the same 5-minute bar, the simulator assumes the **Stop-Loss was hit first**.
-4. **Live Trading Gatekeeper:** Any live order submission attempt without `OPERATIONAL_MODE=LIVE` and explicit approval raises a `LiveTradingPermissionError`.
+The Phase-4 DuckDB paper engine (`paper/`, `execution/paper_trading_engine.py`, `brokers/paper_broker.py`,
+the DuckDB collector) and its one-shot report scripts were moved to `archive/legacy_2026-10-28/`
+with restore commands in `docs/CLEANUP_MANIFEST.md`. Nothing was deleted except regenerable caches.

@@ -1,134 +1,550 @@
 """Previous Day Resistance (PDR) Strategy Implementation.
 
-Source Rulebook: PDR_Strategy_Guide.pdf
+Source Rulebook: docs/strategy_rulebooks/PDR_Strategy_Guide.pdf (4 pages)
 Classification: Intraday Gap-Up Support Retest (Long Playbook)
 Instrument: NIFTY 50 Index (5-min chart)
 Trading Bias: Buy (Long) ONLY
 
-Core Mechanism:
-- Yesterday's resistance zone acts as support after a gap-up open.
-- Gap-Up Gatekeeper: Session must open gap-up (Open_today > Close_yesterday).
-- Price pulls back to test the resistance zone.
-- Bullish confirmation: Green candle forms at or bouncing off the zone.
-- Entry: Long at the close of the confirming green candle.
+PDF sequence: previous day's high/reversal -> zone (candle body to upper wick) -> gap-up open
+-> price returns to the zone (wick / body / inside / very close) -> green candle -> long.
 
-Risk Parameters:
-- Profit Target: Fixed 70 points (Target = Entry + 70)
-- Stop-Loss: 35 or 40 points (Stop = Entry - 35 or Entry - 40)
-- Forced EOD Square-Off: 15:15 IST
+PDF-stated numbers: target 70 points fixed; stop 35 or 40 points.  Everything else this
+class needs that the PDF does not define (proximity number, how the 35/40 stop is chosen,
+latch expiry, zone height cap, signals per day, ...) lives in
+``configs/strategy_provisional/pdr.yaml`` as PROVISIONAL and is listed in
+``PDRStrategy.PROVISIONAL_RULES``.  While any of those apply the strategy is not
+author-approved.
+
+Driving model: one COMPLETED 5-minute bar per ``on_bar`` call.  ``Bar.exchange_time`` is the
+bar OPEN label, so a signal on the bar labelled 09:20 is known at 09:25.  The strategy never
+looks at future data.  Per-day state is keyed by date and every level must be supplied for
+the day being evaluated (``context.state`` keys ``pdh``, ``prev_close``, ``pd_res_body`` and,
+optionally, ``levels_date``); a missing or stale level means no signal.
 """
 
-from datetime import time
+from __future__ import annotations
+
+import math
+from datetime import date, time, timedelta
 from typing import Any
 
 from trading_platform.core.enums import SignalDirection, StrategyStatus
 from trading_platform.core.models import Bar, Signal
 from trading_platform.strategies.base import BaseStrategy, StrategyContext
+from trading_platform.strategies.provisional import load_provisional, provisional_manifest
+
+METHOD_ID = "PDR_RETEST_BOUNCE"
+_FIRST_BAR = time(9, 15)
+_LAST_BAR = time(15, 25)
+_BAR_MINUTES = 5
+
+_PROVISIONAL_KEYS = (
+    "zone_proximity_points",
+    "stop_points_default",
+    "stop_points_wide",
+    "wide_stop_distance_threshold_points",
+    "require_open_above_zone_top",
+    "allow_same_bar_touch_and_confirm",
+    "require_confirm_close_at_or_above_zone_bottom",
+    "reset_touch_on_close_below_zone_bottom",
+    "max_bars_between_touch_and_confirm",
+    "max_confirm_distance_above_zone_top_points",
+    "max_zone_height_points",
+    "max_signals_per_day",
+)
+
+# Config keys used by earlier callers -> provisional key names.
+_LEGACY_ALIASES = {
+    "zone_buffer_points": "zone_proximity_points",
+    "zone_proximity_pts": "zone_proximity_points",
+    "default_stop_points": "stop_points_default",
+    "max_stop_points": "stop_points_wide",
+}
+
+
+def _num(value: Any) -> float | None:
+    """Finite positive float or None."""
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return out if math.isfinite(out) and out > 0 else None
 
 
 class PDRStrategy(BaseStrategy):
-    """Canonical Previous Day Resistance (PDR) Strategy."""
+    """Canonical Previous Day Resistance (PDR) gap-up support-retest strategy."""
+
+    METHOD_ID = METHOD_ID
+    PROVISIONAL_RULES: tuple[str, ...] = (
+        "Zone test proximity ('very close approach') is a point value the PDF does not give",
+        "Stop-loss selection between 35 and 40 points is not defined by the PDF "
+        "(35 default, 40 when the close is >35 points above the zone bottom)",
+        "Day open must be above the zone top: read from the PDF charts, not stated as a rule "
+        "(on the manual journal this gate roughly halves signals and costs 3 of 8 journal "
+        "days, 2025-10-07 / 2025-12-31 / 2026-05-19, which open inside the zone)",
+        "The zone test must happen on an earlier candle than the confirming green candle: "
+        "literal reading of 'green candle after the zone is tested'",
+        "Confirming candle must close at or above the zone bottom: not in the PDF",
+        "A close below the zone bottom discards the earlier zone test: not in the PDF",
+        "No limit on the time or distance between the zone test and the green candle (PDF silent)",
+        "Zone height ('small box') has no numeric cap (PDF gives none)",
+        "Zone geometry is derived outside this class from the previous session's regular 5m "
+        "candles: zone = [body top of the first candle that made the day high, day high] (single "
+        "dataset; the official daily high is only a labelled fallback that carries no body); "
+        "swing-peak zones are not modelled",
+        "At most one signal per day (PDF silent on trades per day)",
+        "Entry cutoff 14:30 and 15:15 square-off are platform risk policy, not PDF rules",
+    )
 
     def __init__(self, config: dict[str, Any] | None = None) -> None:
         super().__init__(name="PDR", config=config, status=StrategyStatus.RESEARCH)
         self.target_points = float(self.config.get("target_points", 70.0))
-        self.default_stop_points = float(self.config.get("default_stop_points", 35.0))
-        self.max_stop_points = float(self.config.get("max_stop_points", 40.0))
-        self.eod_time = time(15, 15)
+        self._load_rules()
         self._daily_state: dict[str, dict[str, Any]] = {}
 
+    # ------------------------------------------------------------------ configuration
+
+    def _load_rules(self) -> None:
+        overrides: dict[str, Any] = {}
+        for key, value in self.config.items():
+            canonical = _LEGACY_ALIASES.get(key, key)
+            if canonical in _PROVISIONAL_KEYS:
+                overrides[canonical] = value
+        rules = load_provisional("pdr", overrides=overrides)
+        missing = [k for k in _PROVISIONAL_KEYS if k not in rules]
+        if missing:
+            raise ValueError(
+                f"PDR provisional rules missing from configs/strategy_provisional/pdr.yaml: "
+                f"{missing}"
+            )
+        self.rules: dict[str, Any] = {k: rules[k] for k in _PROVISIONAL_KEYS}
+
     def prepare(self, data: list[Bar] | None, config: dict[str, Any]) -> None:
-        """Initialize parameters."""
+        """Re-read parameters (PDF target + provisional rules)."""
         self.config.update(config)
         self.target_points = float(self.config.get("target_points", 70.0))
+        self._load_rules()
+
+    @staticmethod
+    def provisional_manifest() -> list[dict[str, Any]]:
+        """The PROVISIONAL rule values (key/value/status/why) for dashboards and reports."""
+        return provisional_manifest("pdr")
+
+    # ------------------------------------------------------------------ driving
 
     def on_bar(self, context: StrategyContext, bar: Bar) -> Signal | None:
-        """Process incoming 5-minute bar and evaluate PDR long setups."""
+        """Process one completed 5-minute bar and evaluate PDR long setups."""
         context.add_bar(bar)
         return self.generate_signal(context)
 
     def generate_signal(self, context: StrategyContext) -> Signal | None:
-        """Evaluate PDR gap-up retest state machine."""
-        latest_bar = context.latest_bar
-        if latest_bar is None:
+        """Advance the per-day PDR state machine up to ``context.latest_bar``.
+
+        Bars of the current day that were added to the context but never evaluated (late
+        start, bars fed with ``add_bar`` only) are replayed in order to update the state; a
+        setup that completes on such an earlier bar is consumed, never emitted late.
+        """
+        latest = context.latest_bar
+        if latest is None:
+            return None
+        day_key = latest.exchange_time.date().isoformat()
+        state = self._state_for(day_key)
+        day_bars = self._day_bars(context, latest)
+        state["last_seen_bar"] = latest.exchange_time
+        self._update_first_bar(state, day_bars)
+
+        levels, failure = self._resolve_levels(context, day_key)
+        state["levels_failure"] = failure
+        if levels is None:
+            state["levels"] = None
+            return None
+        state["levels"] = levels
+        state["levels_sig"] = (levels["pdh"], levels["prev_close"], levels["pd_res_body"])
+
+        if state["first_bar_missing"] or state["day_open"] is None:
+            return None
+        self._evaluate_gates(state, levels)
+        if state["gate_failure"] is not None or state["signals"] >= int(
+            self.rules["max_signals_per_day"]
+        ):
             return None
 
-        day_key = latest_bar.exchange_time.date().isoformat()
-        if day_key not in self._daily_state:
-            self._daily_state[day_key] = {
-                "is_gap_up_verified": None,
-                "zone_tested": False,
-                "has_traded": False,
-            }
-
-        state = self._daily_state[day_key]
-        if state["has_traded"]:
-            return None
-
-        bar_time = latest_bar.exchange_time.time()
-
-        # Gather previous day levels from context state
-        pdh = context.state.get("pdh")
-        prev_close = context.state.get("prev_close")
-        pd_res_body = context.state.get("pd_res_body")
-
-        if pdh is None or prev_close is None or pd_res_body is None:
-            # Cannot trade PDR without the verified prior resistance zone and close.
-            return None
-
-        # 1. First Bar: Gap-Up Gatekeeper Check
-        if state["is_gap_up_verified"] is None:
-            if bar_time in (time(9, 15), time(9, 20)):
-                if latest_bar.open > prev_close:
-                    state["is_gap_up_verified"] = True
+        result: Signal | None = None
+        processed = state["processed_until"]
+        for bar in day_bars:
+            if processed is not None and bar.exchange_time <= processed:
+                continue
+            trigger = self._step(state, levels, bar)
+            state["processed_until"] = bar.exchange_time
+            if trigger is None:
+                continue
+            state["signals"] += 1
+            if bar is latest:
+                result = self._build_signal(state, levels, bar, trigger)
+                if result is None:
+                    state["signals"] -= 1
                 else:
-                    state["is_gap_up_verified"] = False
-                    return None
+                    state["last_signal_time"] = bar.exchange_time
             else:
-                return None
+                state["missed_setups"] += 1
+            if state["signals"] >= int(self.rules["max_signals_per_day"]):
+                break
+        return result
 
-        if not state["is_gap_up_verified"]:
+    # ------------------------------------------------------------------ per-bar logic
+
+    def _step(self, state: dict[str, Any], lv: dict[str, Any], bar: Bar) -> dict[str, Any] | None:
+        """Advance zone-test / confirmation state with one completed bar.
+
+        Returns a trigger descriptor when ``bar`` is a valid confirming green candle.
+        """
+        rules = self.rules
+        zone_top, zone_bottom = lv["zone_top"], lv["zone_bottom"]
+        t = bar.exchange_time
+        is_first = t.time() == _FIRST_BAR
+        proximity = float(rules["zone_proximity_points"])
+
+        overlaps = bar.low <= zone_top + proximity and bar.high >= zone_bottom
+        closed_below = bar.close < zone_bottom
+        discard = bool(rules["reset_touch_on_close_below_zone_bottom"]) and closed_below
+
+        def _update_touch() -> None:
+            if discard:
+                state["zone_touched"] = False
+                state["touch_bar_time"] = None
+            elif overlaps:
+                state["zone_touched"] = True
+                state["touch_bar_time"] = t
+
+        same_bar = bool(rules["allow_same_bar_touch_and_confirm"])
+        if same_bar:
+            _update_touch()
+
+        trigger = None
+        if state["zone_touched"] and not is_first and bar.close > bar.open:
+            trigger = self._confirm(state, lv, bar)
+
+        if not same_bar:
+            _update_touch()
+        if trigger is not None:
+            # A fresh zone test is required before any further setup on this day.
+            state["zone_touched"] = False
+            state["touch_bar_time"] = None
+        return trigger
+
+    def _confirm(
+        self, state: dict[str, Any], lv: dict[str, Any], bar: Bar
+    ) -> dict[str, Any] | None:
+        """Apply the (provisional) confirmation filters to a green candle after a test."""
+        rules = self.rules
+        zone_top, zone_bottom = lv["zone_top"], lv["zone_bottom"]
+        if rules["require_confirm_close_at_or_above_zone_bottom"] and bar.close < zone_bottom:
             return None
+        touch_time = state["touch_bar_time"]
+        bars_since = (
+            int((bar.exchange_time - touch_time).total_seconds() // (_BAR_MINUTES * 60))
+            if touch_time is not None
+            else 0
+        )
+        max_bars = rules["max_bars_between_touch_and_confirm"]
+        if max_bars is not None and bars_since > int(max_bars):
+            state["zone_touched"] = False
+            state["touch_bar_time"] = None
+            return None
+        max_dist = rules["max_confirm_distance_above_zone_top_points"]
+        if max_dist is not None and (bar.close - zone_top) > float(max_dist):
+            return None
+        return {"touch_bar_time": touch_time, "bars_since_touch": bars_since}
 
-        # 2. Zone Retest Check
-        zone_top = pdh
-        zone_bottom = pd_res_body
+    def _build_signal(
+        self, state: dict[str, Any], lv: dict[str, Any], bar: Bar, trigger: dict[str, Any]
+    ) -> Signal | None:
+        rules = self.rules
+        ref_price = bar.close
+        stop_points = float(rules["stop_points_default"])
+        if (ref_price - lv["zone_bottom"]) > float(rules["wide_stop_distance_threshold_points"]):
+            stop_points = float(rules["stop_points_wide"])
+        target = round(ref_price + self.target_points, 2)
+        stop_loss = round(ref_price - stop_points, 2)
+        touch_time = trigger["touch_bar_time"]
+        satisfied = [
+            "levels_available",
+            "first_bar_0915_present",
+            f"gap_up: open {state['day_open']:.2f} > prev_close {lv['prev_close']:.2f}",
+            "zone_tested_on_earlier_candle"
+            if not rules["allow_same_bar_touch_and_confirm"]
+            else "zone_tested",
+            "green_candle_confirmation",
+            "not_first_bar_of_day",
+        ]
+        if rules["require_open_above_zone_top"]:
+            satisfied.append(f"open_above_zone_top: {state['day_open']:.2f} > {lv['zone_top']:.2f}")
+        if rules["require_confirm_close_at_or_above_zone_bottom"]:
+            satisfied.append("confirm_close_at_or_above_zone_bottom")
+        sig = Signal(
+            strategy_name=self.name,
+            method_id=METHOD_ID,
+            symbol=bar.symbol,
+            direction=SignalDirection.BUY,
+            timestamp=bar.exchange_time,
+            reference_price=ref_price,
+            stop_loss=stop_loss,
+            target=target,
+            reason=METHOD_ID,
+            metadata={
+                "method": METHOD_ID,
+                "target_points": self.target_points,
+                "stop_points": stop_points,
+                "stop_rule": "PROVISIONAL_35_OR_40_SELECTOR",
+                "candle_open_time": bar.exchange_time.isoformat(),
+                "decision_time": (bar.exchange_time + timedelta(minutes=_BAR_MINUTES)).isoformat(),
+                "conditions_satisfied": satisfied,
+                "conditions_failed": [],
+                "levels": self._levels_view(state, lv),
+                "trigger_candle": self._candle(bar),
+                "zone_touch_candle_time": touch_time.isoformat() if touch_time else None,
+                "bars_since_zone_touch": trigger["bars_since_touch"],
+                "provisional_rules": list(self.PROVISIONAL_RULES),
+            },
+        )
+        return sig if self.validate_signal(sig, StrategyContext()) else None
 
-        # Retest occurs if bar Low dips into or touches zone (or within proximity)
-        zone_buffer = float(self.config.get("zone_buffer_points", self.config.get("zone_proximity_pts", 5.0)))
-        if latest_bar.low <= (zone_top + zone_buffer) and latest_bar.high >= zone_bottom:
-            state["zone_tested"] = True
+    # ------------------------------------------------------------------ levels & gates
 
-        # 3. Confirmation Trigger: After zone tested, look for bullish green candle closing up
-        if state["zone_tested"]:
-            if latest_bar.close > latest_bar.open and latest_bar.close >= zone_bottom:
-                state["has_traded"] = True
-                ref_price = latest_bar.close
-                target = round(ref_price + self.target_points, 2)
+    def _state_for(self, day_key: str) -> dict[str, Any]:
+        state = self._daily_state.get(day_key)
+        if state is None:
+            state = {
+                "day_open": None,
+                "first_bar_missing": False,
+                "first_bar_time": None,
+                "gap_up": None,
+                "open_above_zone": None,
+                "gate_failure": None,
+                "zone_touched": False,
+                "touch_bar_time": None,
+                "signals": 0,
+                "missed_setups": 0,
+                "processed_until": None,
+                "levels": None,
+                "levels_sig": None,
+                "levels_failure": "LEVELS_NOT_EVALUATED",
+                "last_seen_bar": None,
+                "last_signal_time": None,
+            }
+            self._daily_state[day_key] = state
+        return state
 
-                # Stop loss based on zone depth
-                stop_points = self.default_stop_points
-                if (ref_price - zone_bottom) > 35.0:
-                    stop_points = self.max_stop_points
+    @staticmethod
+    def _day_bars(context: StrategyContext, latest: Bar) -> list[Bar]:
+        """Chronological regular-session bars of ``latest``'s date from the context."""
+        day = latest.exchange_time.date()
+        out: list[Bar] = []
+        for bar in reversed(context.historical_bars):
+            if bar.exchange_time.date() != day:
+                break
+            if _FIRST_BAR <= bar.exchange_time.time() <= _LAST_BAR:
+                out.append(bar)
+        out.reverse()
+        return out
 
-                stop_loss = round(ref_price - stop_points, 2)
+    @staticmethod
+    def _update_first_bar(state: dict[str, Any], day_bars: list[Bar]) -> None:
+        """The 09:15 bar is mandatory; if it is missing the strategy is silent for the day."""
+        if state["day_open"] is not None or state["first_bar_missing"] or not day_bars:
+            return
+        first = day_bars[0]
+        if first.exchange_time.time() == _FIRST_BAR:
+            state["day_open"] = first.open
+            state["first_bar_time"] = first.exchange_time
+        else:
+            state["first_bar_missing"] = True
 
-                sig = Signal(
-                    strategy_name=self.name,
-                    method_id="PDR_RETEST_BOUNCE",
-                    symbol=latest_bar.symbol,
-                    direction=SignalDirection.BUY,
-                    timestamp=latest_bar.exchange_time,
-                    reference_price=ref_price,
-                    stop_loss=stop_loss,
-                    target=target,
-                    reason="PDR_RETEST_BOUNCE",
-                    metadata={
-                        "method": "PDR_RETEST_BOUNCE",
-                        "target_points": self.target_points,
-                        "stop_points": stop_points,
-                    },
-                )
-                return sig if self.validate_signal(sig, context) else None
+    def _resolve_levels(
+        self, context: StrategyContext, day_key: str
+    ) -> tuple[dict[str, Any] | None, str | None]:
+        """Read and validate prior-day levels; ``(None, reason)`` means stay silent."""
+        raw = context.state
+        pdh = _num(raw.get("pdh"))
+        prev_close = _num(raw.get("prev_close"))
+        body = _num(raw.get("pd_res_body"))
+        if pdh is None or prev_close is None or body is None:
+            return None, "LEVELS_MISSING"
+        levels_date = raw.get("levels_date")
+        if levels_date is not None and str(levels_date)[:10] != day_key:
+            return None, "LEVELS_STALE"
+        if self._same_as_previous_day(day_key, (pdh, prev_close, body)):
+            # Identical levels two sessions in a row means the caller did not refresh them.
+            return None, "LEVELS_STALE"
+        if prev_close > pdh or body > pdh:
+            return None, "LEVELS_INCONSISTENT"
+        height = pdh - body
+        cap = self.rules["max_zone_height_points"]
+        if cap is not None and height > float(cap):
+            return None, "ZONE_TOO_TALL"
+        return (
+            {
+                "pdh": pdh,
+                "prev_close": prev_close,
+                "pd_res_body": body,
+                "zone_top": pdh,
+                "zone_bottom": body,
+                "zone_height": round(height, 4),
+            },
+            None,
+        )
 
-        return None
+    def _same_as_previous_day(self, day_key: str, sig: tuple[float, float, float]) -> bool:
+        earlier = [k for k, s in self._daily_state.items() if k < day_key and s["levels_sig"]]
+        if not earlier:
+            return False
+        return self._daily_state[max(earlier)]["levels_sig"] == sig
+
+    def _evaluate_gates(self, state: dict[str, Any], lv: dict[str, Any]) -> None:
+        day_open = state["day_open"]
+        state["gap_up"] = day_open > lv["prev_close"]
+        state["open_above_zone"] = day_open > lv["zone_top"]
+        if not state["gap_up"]:
+            state["gate_failure"] = "NO_GAP_UP"
+        elif self.rules["require_open_above_zone_top"] and not state["open_above_zone"]:
+            state["gate_failure"] = "OPEN_NOT_ABOVE_ZONE"
+        else:
+            state["gate_failure"] = None
+
+    # ------------------------------------------------------------------ read-only view
+
+    @staticmethod
+    def _candle(bar: Bar) -> dict[str, Any]:
+        return {
+            "o": bar.open,
+            "h": bar.high,
+            "l": bar.low,
+            "c": bar.close,
+            "time": bar.exchange_time.isoformat(),
+        }
+
+    @staticmethod
+    def _levels_view(state: dict[str, Any], lv: dict[str, Any] | None) -> dict[str, Any]:
+        if lv is None:
+            return {
+                "pdh": None,
+                "prev_close": None,
+                "zone_top": None,
+                "zone_bottom": None,
+                "day_open": state["day_open"],
+            }
+        return {
+            "pdh": lv["pdh"],
+            "prev_close": lv["prev_close"],
+            "zone_top": lv["zone_top"],
+            "zone_bottom": lv["zone_bottom"],
+            "zone_height": lv["zone_height"],
+            "day_open": state["day_open"],
+        }
+
+    def evaluation_snapshot(self, day_key: str | date | None = None) -> dict[str, Any]:
+        """Read-only view of the current evaluation for the Strategy Monitor.
+
+        Never mutates strategy state.  ``state`` uses StrategyRunState names
+        (WARMING_UP / MONITORING / DONE_FOR_DAY / BLOCKED); ``phase`` is the PDR-specific step.
+        """
+        if day_key is None:
+            keys = sorted(self._daily_state)
+            key = keys[-1] if keys else None
+        elif isinstance(day_key, date):
+            key = day_key.isoformat()
+        else:
+            key = str(day_key)[:10]
+        base: dict[str, Any] = {
+            "strategy": self.name,
+            "method": METHOD_ID,
+            "day": key,
+            "provisional_rules": list(self.PROVISIONAL_RULES),
+        }
+        state = self._daily_state.get(key) if key else None
+        if state is None:
+            base.update(
+                state="WARMING_UP",
+                phase="NOT_EVALUATED",
+                reason="no completed candle evaluated for this day",
+                conditions_satisfied=[],
+                conditions_failed=["first_bar_0915_present"],
+                levels=self._levels_view({"day_open": None}, None),
+                signals_today=0,
+                last_evaluated_candle=None,
+            )
+            return base
+
+        lv = state["levels"]
+        satisfied: list[str] = []
+        failed: list[str] = []
+        if lv is None:
+            failed.append(f"levels_available: {state['levels_failure']}")
+        else:
+            satisfied.append("levels_available")
+        if state["first_bar_missing"]:
+            failed.append("first_bar_0915_present: 09:15 candle missing, silent for the day")
+        elif state["day_open"] is None:
+            failed.append("first_bar_0915_present: not yet received")
+        else:
+            satisfied.append("first_bar_0915_present")
+        if lv is not None and state["day_open"] is not None:
+            self._gate_conditions(state, lv, satisfied, failed)
+
+        phase, run_state, reason = self._phase(state)
+        base.update(
+            state=run_state,
+            phase=phase,
+            reason=reason,
+            conditions_satisfied=satisfied,
+            conditions_failed=failed,
+            levels=self._levels_view(state, lv),
+            signals_today=state["signals"],
+            missed_setups=state["missed_setups"],
+            zone_touch_candle_time=(
+                state["touch_bar_time"].isoformat() if state["touch_bar_time"] else None
+            ),
+            last_evaluated_candle=(
+                state["processed_until"].isoformat() if state["processed_until"] else None
+            ),
+            last_signal_time=(
+                state["last_signal_time"].isoformat() if state["last_signal_time"] else None
+            ),
+        )
+        return base
+
+    def _gate_conditions(
+        self, state: dict[str, Any], lv: dict[str, Any], satisfied: list[str], failed: list[str]
+    ) -> None:
+        day_open = state["day_open"]
+        gap = f"gap_up: open {day_open:.2f} > prev_close {lv['prev_close']:.2f}"
+        (satisfied if day_open > lv["prev_close"] else failed).append(gap)
+        if self.rules["require_open_above_zone_top"]:
+            above = f"open_above_zone_top: open {day_open:.2f} > {lv['zone_top']:.2f}"
+            (satisfied if day_open > lv["zone_top"] else failed).append(above)
+        if state["gate_failure"] is None:
+            if state["zone_touched"]:
+                satisfied.append("zone_tested")
+                failed.append("green_candle_confirmation: awaiting a green candle")
+            else:
+                failed.append("zone_tested: price has not returned to the zone")
+            if state["signals"] >= int(self.rules["max_signals_per_day"]):
+                failed.append("signal_available: daily signal limit reached")
+            else:
+                satisfied.append("signal_available")
+
+    def _phase(self, state: dict[str, Any]) -> tuple[str, str, str]:
+        if state["levels"] is None:
+            reason = state["levels_failure"] or "LEVELS_MISSING"
+            return reason, "WARMING_UP" if reason == "LEVELS_MISSING" else "BLOCKED", reason
+        if state["first_bar_missing"]:
+            return "FIRST_BAR_MISSING", "BLOCKED", "09:15 candle missing; silent for the day"
+        if state["day_open"] is None:
+            return "AWAITING_FIRST_BAR", "WARMING_UP", "waiting for the 09:15 candle"
+        if state["gate_failure"] is not None:
+            return state["gate_failure"], "DONE_FOR_DAY", state["gate_failure"]
+        if state["signals"] >= int(self.rules["max_signals_per_day"]):
+            return "SIGNALLED", "DONE_FOR_DAY", "daily signal limit reached"
+        if state["zone_touched"]:
+            return "ZONE_TESTED_AWAITING_GREEN", "MONITORING", "zone tested; awaiting green candle"
+        return "AWAITING_ZONE_TEST", "MONITORING", "gap-up confirmed; awaiting return to zone"

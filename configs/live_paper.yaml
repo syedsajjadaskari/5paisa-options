@@ -1,0 +1,68 @@
+# Live paper-trading application: single source of live configuration.
+# PAPER ONLY. Read-only broker. No real orders, ever.
+# Loaded and strictly validated by src/trading_platform/live/config.py
+# (unknown keys and missing keys are errors; there are no silent defaults).
+
+account:
+  starting_capital_inr: 250000
+  max_open_positions: 1            # only 1 is supported
+  max_lots: 2
+  max_premium_allocation_pct: 20.0 # of SESSION-OPENING equity
+  max_daily_loss_pct: 10.0         # of SESSION-OPENING equity (equity marked to bid)
+
+session:
+  market_open_ist: "09:15"
+  entry_cutoff_ist: "14:30"        # a candle CLOSING at/after this time cannot open a trade
+  square_off_ist: "15:15"
+  market_close_ist: "15:30"
+
+execution:
+  entry_slippage_points: 0.5       # fill = observed ASK + this
+  exit_slippage_points: 0.5        # fill = observed BID - this (floor 0.05)
+  max_spread_points: 5.0
+  max_spread_pct: 2.0              # of quote mid
+  max_quote_age_seconds: 5.0
+  expiry_policy: NEAREST           # NEAREST | NEXT
+  min_days_to_expiry: 0
+  allow_expiry_day: true           # false == exclude contracts expiring today
+  strike_selection: ATM
+  strike_step: 50                  # max |ATM strike - spot| tolerated (fail closed beyond it)
+
+# Tier per strategy; deny-by-default. Fills are NEVER granted from this block:
+# only SHADOW_ONLY (signals journaled, no fills) or DISABLED are valid here.
+strategies:
+  PDS: {enabled: true, method: METHOD_1, tier: SHADOW_ONLY}
+  ORB: {enabled: true, method: METHOD_1, tier: SHADOW_ONLY}
+  IRF: {enabled: true, method: METHOD_2, tier: SHADOW_ONLY}
+  PDR: {enabled: true, method: RETEST_BOUNCE, tier: SHADOW_ONLY}
+  RF:  {enabled: false, tier: DISABLED}   # permanently disabled
+
+# Explicit, separately-approved opt-in for SIMULATED fills on PROVISIONAL rules. OFF by default.
+# Needs ALL of: enabled: true, the exact acknowledgement phrase (see live/authorization.py,
+# RESEARCH_PAPER_ACK), the --research-paper CLI flag, and the strategy listed below.
+research_paper:
+  enabled: false
+  acknowledgement: ""
+  strategies: []                   # e.g. [PDS, ORB]
+
+candles:
+  source: PROVIDER
+  fail_closed: true
+  provider_poll_delay_seconds: 3
+  provider_wait_max_seconds: 90
+  spot_crosscheck_tolerance_points: 15.0
+  # Fail-closed default (true): a vendor candle is accepted only if THIS process sampled a spot
+  # tick within 20 s of its close. A start/restart after 09:20 (or a >20 s data gap at a candle
+  # close) therefore leaves the earlier candles unverifiable and strategies may stay BLOCKED.
+  # false = accept a vendor candle OLDER than uncrosschecked_min_age_seconds WITHOUT any tick
+  # cross-check (weaker; only on explicit operator decision).
+  require_sample_crosscheck: true
+  uncrosschecked_min_age_seconds: 60
+
+polling:
+  interval_seconds: 1.0
+  option_depth_interval_seconds: 1.0
+
+paths:
+  runtime_dir: runtime
+  scrip_master: data/reference/scrip_master.parquet

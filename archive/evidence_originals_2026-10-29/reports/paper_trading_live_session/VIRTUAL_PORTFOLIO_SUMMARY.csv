@@ -1,0 +1,21 @@
+metric,value,notes
+Virtual Starting Capital,"₹250,000.00",Approved virtual equity ledger
+Virtual Ending Equity,"₹252,880.43",Cash + unrealized MTM
+Available Cash,"₹252,880.43",Liquid virtual cash
+Invested Capital,₹0.00,No overnight open positions
+Realized Gross P&L,"₹+3,074.50",Excluding costs and slippage
+Total Statutory & Brokerage Costs,₹194.08,"Itemized STT, GST, brokerage, fees"
+Realized Net P&L,"₹+2,880.42",Net bottom-line virtual profit
+Unrealized P&L,₹0.00,All positions closed before 15:15 IST
+Net Return on Starting Capital,+1.15%,Session percentage return
+Max Intraday Drawdown,0.98%,Peak-to-trough capital drawdown
+Total Completed Trades,2,Round-trip filled orders
+Winning Trades,1,Net profit > 0
+Losing Trades,1,Net profit <= 0
+Win Rate,50.0%,Percentage of winning trades
+Profit Factor,2.16,Gross gains / Gross losses
+Average Holding Duration,47.5 mins,Mean trade time in minutes
+Maximum Premium Allocation Limit,"₹50,000.00 (20%)",Enforced allocation ceiling
+Daily Loss Limit,"₹5,000.00 (2%)",Enforced session risk ceiling
+Pending Exits at Market Close,0,No unvalued or orphaned exposure
+Broker Account Interface Isolation,PHYSICALLY BLOCKED,_ReadOnlyFivePaisaClientProxy verified

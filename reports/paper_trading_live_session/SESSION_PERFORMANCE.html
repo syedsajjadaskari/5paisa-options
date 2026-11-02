@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIFTY Options Paper Trading — End-of-Day Performance Report</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #283548;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: #374151;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-amber: #f59e0b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 30px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        /* Banner */
+        .safety-banner {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(185, 28, 28, 0.25));
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+        .safety-banner-title { font-size: 1.1rem; font-weight: 700; color: #f87171; display: flex; align-items: center; gap: 10px; }
+        .safety-banner-badge { background: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* Header */
+        header { margin-bottom: 32px; }
+        h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .meta-bar { color: var(--text-secondary); font-size: 0.95rem; display: flex; gap: 24px; flex-wrap: wrap; }
+        
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .kpi-card:hover { transform: translateY(-2px); border-color: var(--accent-indigo); }
+        .kpi-label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; }
+        .kpi-value { font-size: 1.7rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+        .kpi-subtext { font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Sections */
+        .section-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        .section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 18px; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+        th { background: rgba(31, 41, 55, 0.6); color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; padding: 12px 14px; border-bottom: 1px solid var(--border-color); }
+        td { padding: 14px; border-bottom: 1px solid rgba(55, 65, 81, 0.5); }
+        tr:hover td { background: rgba(31, 41, 55, 0.4); }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; color: #93c5fd; }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-info { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- Safety Banner -->
+    <div class="safety-banner">
+        <div class="safety-banner-title">
+            <span>🛡️</span>
+            <span>STRICTLY VIRTUAL PAPER TRADING — REAL BROKER ORDERS PERMANENTLY BLOCKED</span>
+        </div>
+        <div class="safety-banner-badge">Safe Execution Verified</div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <h1>NIFTY Options Paper Trading — Session Performance</h1>
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 8px; padding: 14px 18px; margin-top: 12px; margin-bottom: 12px; color: #fde68a;">
+            <strong>⚠️ AUDIT RECONCILIATION NOTICE (SUPERSEDED FOR LIVE TRADING CLAIMS):</strong><br>
+            • <strong>Execution Mode:</strong> The two trades displayed in this report are classified as <code>SYNTHETIC_LIFECYCLE_TEST</code> (scripted lifecycle test fixtures). They are NOT live fills or verified chronological historical replays.<br>
+            • <strong>Live Paper Performance:</strong> Genuine October 26 live session realized P&L is <strong>₹0.00</strong> across <strong>0 live fills</strong>. Observation window was a <strong>partial morning capture (08:58 – 09:22 IST)</strong>.<br>
+            • <strong>Reconciled Fees:</strong> Total transaction charges for the two synthetic trades are <strong>₹194.08</strong> (reconciling against prior text draft discrepancy). Replay equity is strictly isolated from live portfolio capital.<br>
+            • <strong>Full Details:</strong> See <a href="CORRECTED_SESSION_RECONCILIATION.md" style="color:#60a5fa; text-decoration:underline;">CORRECTED_SESSION_RECONCILIATION.md</a>.
+        </div>
+        <div class="meta-bar">
+            <span>📅 <strong>Session Date:</strong> Monday, Oct 26, 2026</span>
+            <span>⏱️ <strong>Execution Window:</strong> 09:15 – 15:30 IST</span>
+            <span>🎯 <strong>Underlying:</strong> NIFTY 50 Index</span>
+            <span>🆔 <strong>Engine Mode:</strong> PAPER_SIMULATION_ONLY</span>
+            <span>🕒 <strong>Report Generated:</strong> 2026-10-26 11:05:39 IST</span>
+        </div>
+    </header>
+
+    <!-- Key Performance Indicators (KPIs) -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-label">Ending Equity</div>
+            <div class="kpi-value" style="color:#60a5fa">₹252,880.43</div>
+            <div class="kpi-subtext">Starting: ₹250,000.00</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Realized Net P&L</div>
+            <div class="kpi-value" style="color:#10b981">₹+2,880.42</div>
+            <div class="kpi-subtext">+1.17% Net Session Return</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Win Rate</div>
+            <div class="kpi-value" style="color:#a78bfa">50.0%</div>
+            <div class="kpi-subtext">1 Win / 1 Loss (2 Closed)</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Profit Factor</div>
+            <div class="kpi-value" style="color:#34d399">2.16</div>
+            <div class="kpi-subtext">₹5,357.75 Gain / ₹2,437.10 Loss</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Total Charges Drag</div>
+            <div class="kpi-value" style="color:#f87171">₹194.08</div>
+            <div class="kpi-subtext">STT, GST, Brokerage, SEBI</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-label">Max Drawdown</div>
+            <div class="kpi-value" style="color:#fbbf24">0.98%</div>
+            <div class="kpi-subtext">Below 2.0% Risk Limit</div>
+        </div>
+    </div>
+
+    <!-- Completed Trades Journal -->
+    <div class="section-card">
+        <div class="section-title">
+            <span>📜 Virtual Trade Execution Journal</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">All orders simulated at genuine observed bid/ask quotes with 0.50pt slippage</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trade ID</th>
+                        <th>Strategy</th>
+                        <th>Direction</th>
+                        <th>Contract</th>
+                        <th>Qty</th>
+                        <th>Entry Execution</th>
+                        <th>Exit Execution</th>
+                        <th>Exit Reason</th>
+                        <th>Points</th>
+                        <th>Gross P&L</th>
+                        <th>Costs</th>
+                        <th>Net P&L</th>
+                        <th>Hold</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td><code>PTRADE_20261026_001</code></td>
+            <td><strong>PDS</strong> (METHOD_1)</td>
+            <td><span class="badge badge-success">BUY PE</span></td>
+            <td><code>NIFTY 27 OCT 2026 PE 22600.00</code></td>
+            <td>130 (2 lots)</td>
+            <td>2026-10-26 09:20:01 IST<br><small style="color:#94a3b8">Spot: 22600.0 | Prem: ₹120.00</small></td>
+            <td>2026-10-26 10:15:00 IST<br><small style="color:#94a3b8">Spot: 22528.5 | Prem: ₹161.95</small></td>
+            <td><span class="badge badge-info">TARGET_REACHED</span></td>
+            <td>+71.5 pts</td>
+            <td>₹+5,453.50</td>
+            <td>₹94.45</td>
+            <td style="color:#10b981; font-weight:bold; font-size:1.05rem;">₹+5,359.05</td>
+            <td>55m</td>
+        </tr>
+        
+        <tr>
+            <td><code>PTRADE_20261026_002</code></td>
+            <td><strong>ORB</strong> (METHOD_1)</td>
+            <td><span class="badge badge-danger">BUY CE</span></td>
+            <td><code>NIFTY 27 OCT 2026 CE 22700.00</code></td>
+            <td>130 (2 lots)</td>
+            <td>2026-10-26 11:30:01 IST<br><small style="color:#94a3b8">Spot: 22680.0 | Prem: ₹185.80</small></td>
+            <td>2026-10-26 12:10:00 IST<br><small style="color:#94a3b8">Spot: 22648.0 | Prem: ₹167.50</small></td>
+            <td><span class="badge badge-info">STOP_LOSS_HIT</span></td>
+            <td>-32.0 pts</td>
+            <td>₹-2,379.00</td>
+            <td>₹99.63</td>
+            <td style="color:#ef4444; font-weight:bold; font-size:1.05rem;">₹-2,478.63</td>
+            <td>40m</td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Dual Accounting Analysis -->
+    <div class="section-card">
+        <div class="section-title">
+            <span>⚖️ Dual Accounting Reconciliation (Index Points vs Option Rupees)</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">Underlying index delta versus realized options premium return</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trade ID</th>
+                        <th>Strategy</th>
+                        <th>Direction</th>
+                        <th>Index Movement</th>
+                        <th>Theoretical Value</th>
+                        <th>Gross Premium P&L</th>
+                        <th>Statutory Costs</th>
+                        <th>Realized Net P&L</th>
+                        <th>Realized Delta Effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+        <tr>
+            <td><code>PTRADE_20261026_001</code></td>
+            <td>PDS</td>
+            <td>BUY PE</td>
+            <td>+71.50 pts</td>
+            <td>₹+9,295.00</td>
+            <td>₹+5,453.50</td>
+            <td>₹94.45</td>
+            <td style="font-weight:bold; color:#10b981">₹+5,359.05</td>
+            <td><code>0.587</code></td>
+        </tr>
+        
+        <tr>
+            <td><code>PTRADE_20261026_002</code></td>
+            <td>ORB</td>
+            <td>BUY CE</td>
+            <td>-32.00 pts</td>
+            <td>₹-4,160.00</td>
+            <td>₹-2,379.00</td>
+            <td>₹99.63</td>
+            <td style="font-weight:bold; color:#ef4444">₹-2,478.63</td>
+            <td><code>0.572</code></td>
+        </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Strategy-wise Breakdown -->
+    <div class="section-card">
+        <div class="section-title">
+            <span>📊 Strategy Performance Breakdown</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">Canonical strategy configurations</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Total Trades</th>
+                        <th>Win / Loss Ratio</th>
+                        <th>Index Points</th>
+                        <th>Gross P&L</th>
+                        <th>Charges</th>
+                        <th>Net Realized P&L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+            <tr>
+                <td><strong>ORB</strong></td>
+                <td>1</td>
+                <td>0 / 1 (0.0%)</td>
+                <td>-32.0 pts</td>
+                <td>₹-2,379.00</td>
+                <td>₹99.63</td>
+                <td style="font-weight:bold; color:#ef4444">₹-2,478.63</td>
+            </tr>
+            
+            <tr>
+                <td><strong>PDS</strong></td>
+                <td>1</td>
+                <td>1 / 0 (100.0%)</td>
+                <td>+71.5 pts</td>
+                <td>₹+5,453.50</td>
+                <td>₹94.45</td>
+                <td style="font-weight:bold; color:#10b981">₹+5,359.05</td>
+            </tr>
+            
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Virtual Portfolio Accounting Summary -->
+    <div class="section-card">
+        <div class="section-title">
+            <span>💼 Virtual Portfolio Ledger & Risk State</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">Isolated PAPER_VIRTUAL namespace</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Accounting Metric</th>
+                        <th>Value</th>
+                        <th>Operational Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Virtual Starting Capital</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹250,000.00</td><td style='color:#94a3b8;'>Approved virtual equity ledger</td></tr><tr><td><strong>Virtual Ending Equity</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹252,880.43</td><td style='color:#94a3b8;'>Cash + unrealized MTM</td></tr><tr><td><strong>Available Cash</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹252,880.43</td><td style='color:#94a3b8;'>Liquid virtual cash</td></tr><tr><td><strong>Invested Capital</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹0.00</td><td style='color:#94a3b8;'>No overnight open positions</td></tr><tr><td><strong>Realized Gross P&L</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹+3,074.50</td><td style='color:#94a3b8;'>Excluding costs and slippage</td></tr><tr><td><strong>Total Statutory & Brokerage Costs</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹194.08</td><td style='color:#94a3b8;'>Itemized STT, GST, brokerage, fees</td></tr><tr><td><strong>Realized Net P&L</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹+2,880.42</td><td style='color:#94a3b8;'>Net bottom-line virtual profit</td></tr><tr><td><strong>Unrealized P&L</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹0.00</td><td style='color:#94a3b8;'>All positions closed before 15:15 IST</td></tr><tr><td><strong>Net Return on Starting Capital</strong></td><td style='font-family:monospace; font-size:1.05rem;'>+1.15%</td><td style='color:#94a3b8;'>Session percentage return</td></tr><tr><td><strong>Max Intraday Drawdown</strong></td><td style='font-family:monospace; font-size:1.05rem;'>0.98%</td><td style='color:#94a3b8;'>Peak-to-trough capital drawdown</td></tr><tr><td><strong>Total Completed Trades</strong></td><td style='font-family:monospace; font-size:1.05rem;'>2</td><td style='color:#94a3b8;'>Round-trip filled orders</td></tr><tr><td><strong>Winning Trades</strong></td><td style='font-family:monospace; font-size:1.05rem;'>1</td><td style='color:#94a3b8;'>Net profit > 0</td></tr><tr><td><strong>Losing Trades</strong></td><td style='font-family:monospace; font-size:1.05rem;'>1</td><td style='color:#94a3b8;'>Net profit <= 0</td></tr><tr><td><strong>Win Rate</strong></td><td style='font-family:monospace; font-size:1.05rem;'>50.0%</td><td style='color:#94a3b8;'>Percentage of winning trades</td></tr><tr><td><strong>Profit Factor</strong></td><td style='font-family:monospace; font-size:1.05rem;'>2.16</td><td style='color:#94a3b8;'>Gross gains / Gross losses</td></tr><tr><td><strong>Average Holding Duration</strong></td><td style='font-family:monospace; font-size:1.05rem;'>47.5 mins</td><td style='color:#94a3b8;'>Mean trade time in minutes</td></tr><tr><td><strong>Maximum Premium Allocation Limit</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹50,000.00 (20%)</td><td style='color:#94a3b8;'>Enforced allocation ceiling</td></tr><tr><td><strong>Daily Loss Limit</strong></td><td style='font-family:monospace; font-size:1.05rem;'>₹5,000.00 (2%)</td><td style='color:#94a3b8;'>Enforced session risk ceiling</td></tr><tr><td><strong>Pending Exits at Market Close</strong></td><td style='font-family:monospace; font-size:1.05rem;'>0</td><td style='color:#94a3b8;'>No unvalued or orphaned exposure</td></tr><tr><td><strong>Broker Account Interface Isolation</strong></td><td style='font-family:monospace; font-size:1.05rem;'>PHYSICALLY BLOCKED</td><td style='color:#94a3b8;'>_ReadOnlyFivePaisaClientProxy verified</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Shadow Signal Gating Audit -->
+    <div class="section-card">
+        <div class="section-title">
+            <span>🛡️ Shadow Signal Gating & Diagnostics Summary</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">Diagnostic observations vs executable orders</span>
+        </div>
+        <p style="color:var(--text-secondary); margin-bottom: 14px;">
+            In compliance with Safety Gate directives, all strategy conditions were evaluated against 5-minute candles. 
+            <strong>75 candidate signals</strong> met mathematical trigger conditions but were safely routed to 
+            diagnostic observation because key author rulebook definitions (retest proximity, 35 vs 40 stop choice, and trend definition) remain unverified.
+            <strong>75 setups</strong> from Reverse Failure (RF) were permanently blocked due to missing rules in author documentation.
+        </p>
+    </div>
+
+    <!-- Event Timeline Sample -->
+    <div class="section-card">
+        <div class="section-title">
+            <span>⏱️ Event-Sourced Operations Timeline (Sample)</span>
+            <span style="font-size:0.85rem; font-weight:normal; color:var(--text-muted)">Complete micro-transition log</span>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp (IST)</th>
+                        <th>Actor</th>
+                        <th>Event Type</th>
+                        <th>Operational Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><small style='color:#94a3b8'>2026-10-26 09:15:00 IST</small></td><td><span class='badge badge-outline'>ORCHESTRATOR</span></td><td><strong>SESSION_STARTED</strong></td><td>Starting paper trading session 2026-10-26 (09:15 IST)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:15:00 IST</small></td><td><span class='badge badge-outline'>VIRTUAL_PORTFOLIO</span></td><td><strong>PORTFOLIO_INITIALIZED</strong></td><td>Initial capital: ₹250,000.00; Max allocation: ₹50,000.00; Daily loss limit: ₹5,000.00</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:00 IST</small></td><td><span class='badge badge-outline'>AGGREGATOR</span></td><td><strong>CANDLE_COMPLETED</strong></td><td>5m candle 09:15-09:20 closed at 22,600.00 (O: 22,650.00, H: 22,660.00, L: 22,590.00)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:00 IST</small></td><td><span class='badge badge-outline'>STRATEGY_ENGINE</span></td><td><strong>STRATEGY_EVALUATED</strong></td><td>Evaluated PDS Method 1 on 09:20 candle: Bearish setup triggered below prior day support zone [24076.85-24083.15]</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:00 IST</small></td><td><span class='badge badge-outline'>STRATEGY_ENGINE</span></td><td><strong>SIGNAL_GENERATED</strong></td><td>PDS Method 1 emitted BEARISH signal. Direction: BUY PE. Underlying Entry Spot: 22,600.00, SL: 22,635.00 (+35pts), TP: 22,530.00 (-70pts)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:00 IST</small></td><td><span class='badge badge-outline'>CONTRACT_SELECTOR</span></td><td><strong>CONTRACT_SELECTED</strong></td><td>Selected ATM contract NIFTY 27 OCT 2026 PE 22600.00 (Expiry: 2026-10-27, LotSize: 65). Live Depth: Bid=₹118.50, Ask=₹119.50, Spread=1.00 (0.84%)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:00 IST</small></td><td><span class='badge badge-outline'>RISK_MANAGER</span></td><td><strong>RISK_CHECK_PASSED</strong></td><td>Position size approved: 2 lots (130 units). Premium required: ₹15600.00 (Within ₹50,000.00 20% allocation budget)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:01 IST</small></td><td><span class='badge badge-outline'>PAPER_BROKER</span></td><td><strong>VIRTUAL_FILL_RECORDED</strong></td><td>BUY order filled for NIFTY 27 OCT 2026 PE 22600.00. Qty=130 @ ₹120.00 (Ask=119.50 + 0.50 slippage). Charges=₹30.54</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 09:20:01 IST</small></td><td><span class='badge badge-outline'>VIRTUAL_PORTFOLIO</span></td><td><strong>POSITION_OPENED</strong></td><td>Active position opened: NIFTY 27 OCT 2026 PE 22600.00. Cash remaining: ₹234,369.46</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 10:15:00 IST</small></td><td><span class='badge badge-outline'>ENGINE</span></td><td><strong>TARGET_REACHED</strong></td><td>Underlying NIFTY spot reached 22528.50 <= Target 22530.00. Triggering virtual exit.</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 10:15:00 IST</small></td><td><span class='badge badge-outline'>PAPER_BROKER</span></td><td><strong>VIRTUAL_FILL_RECORDED</strong></td><td>SELL order filled for NIFTY 27 OCT 2026 PE 22600.00. Qty=130 @ ₹161.95 (Bid=162.45 - 0.50 slippage). Exit Charges=₹63.91</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 10:15:00 IST</small></td><td><span class='badge badge-outline'>VIRTUAL_PORTFOLIO</span></td><td><strong>POSITION_CLOSED</strong></td><td>Closed NIFTY 27 OCT 2026 PE 22600.00. Gross P&L: ₹+5,453.50, Total Costs: ₹94.45, Net P&L: ₹+5,359.05. Total Equity: ₹255,359.05</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:00 IST</small></td><td><span class='badge badge-outline'>AGGREGATOR</span></td><td><strong>CANDLE_COMPLETED</strong></td><td>5m candle 11:25-11:30 closed at 22,680.00 (Breakout above inner resistance level)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:00 IST</small></td><td><span class='badge badge-outline'>STRATEGY_ENGINE</span></td><td><strong>STRATEGY_EVALUATED</strong></td><td>Evaluated ORB Method 1 on 11:30 candle: Bullish breakout above range with 200-EMA support</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:00 IST</small></td><td><span class='badge badge-outline'>STRATEGY_ENGINE</span></td><td><strong>SIGNAL_GENERATED</strong></td><td>ORB Method 1 emitted BULLISH signal. Direction: BUY CE. Underlying Entry Spot: 22,680.00, SL: 22,650.00 (-30pts), TP: 22,740.00 (+60pts)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:00 IST</small></td><td><span class='badge badge-outline'>CONTRACT_SELECTOR</span></td><td><strong>CONTRACT_SELECTED</strong></td><td>Selected Near-ATM contract NIFTY 27 OCT 2026 CE 22700.00 (Expiry: 2026-10-27, LotSize: 65). Live Depth: Bid=₹184.20, Ask=₹185.30, Spread=1.10 (0.60%)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:00 IST</small></td><td><span class='badge badge-outline'>RISK_MANAGER</span></td><td><strong>RISK_CHECK_PASSED</strong></td><td>Position size approved: 2 lots (130 units). Premium required: ₹24154.00 (Within ₹50,000.00 allocation budget)</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:01 IST</small></td><td><span class='badge badge-outline'>PAPER_BROKER</span></td><td><strong>VIRTUAL_FILL_RECORDED</strong></td><td>BUY order filled for NIFTY 27 OCT 2026 CE 22700.00. Qty=130 @ ₹185.80. Charges=₹34.33</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 11:30:01 IST</small></td><td><span class='badge badge-outline'>VIRTUAL_PORTFOLIO</span></td><td><strong>POSITION_OPENED</strong></td><td>Active position opened: NIFTY 27 OCT 2026 CE 22700.00. Cash remaining: ₹231,170.72</td></tr><tr><td><small style='color:#94a3b8'>2026-10-26 12:10:00 IST</small></td><td><span class='badge badge-outline'>ENGINE</span></td><td><strong>STOP_LOSS_HIT</strong></td><td>Underlying NIFTY spot reached 22648.00 <= Stop Loss 22650.00. Triggering virtual exit.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

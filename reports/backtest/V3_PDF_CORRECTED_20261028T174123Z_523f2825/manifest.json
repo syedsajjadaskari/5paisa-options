@@ -1,0 +1,158 @@
+{
+  "code_hashes": {
+    "configs/strategy_provisional/irf.yaml": "a3fc63bb193e5951409e7ecc892f0f1383043d2636f1758b90aabc0a81b9bf8a",
+    "configs/strategy_provisional/orb.yaml": "f55f6bdc9b102888df93e756a513eb04a06d342854b4537c8a0588ff784bf5a1",
+    "configs/strategy_provisional/pdr.yaml": "7ef9af32f6e6f866d40b043f489400b3990cde4826c9532a9bc32a8c56028ef9",
+    "configs/strategy_provisional/pds.yaml": "c1f3a34afce23ec24e5f1a18658e637d844d3836f78f88942a466663fec47777",
+    "src/trading_platform/backtesting/arbitration.py": "51a2a83a503242205e303ecd7429cba3f8ca179d1f5ca4988aee48935f679fb5",
+    "src/trading_platform/backtesting/constants.py": "263d0e40b11e552913c5ac2afd3b9b79f4f3de4635b35c5e4a1a69c17ff082aa",
+    "src/trading_platform/backtesting/engine.py": "6a5b708b36dcf728de4ab08c141038b91223569cd85e1071f4be9ab1c40710d2",
+    "src/trading_platform/backtesting/metrics.py": "8f02a5b5461c98d3aad89f0856eea1c2bb4f911cbb7921565675fbcd6c4ccf90",
+    "src/trading_platform/backtesting/portfolio_runner.py": "9fa7fe622bc2aa71a86ace15e6a7790080f1ae9433135538f349c75303d46487",
+    "src/trading_platform/data/reference_levels.py": "1df799012b777c2ca0c6ba1d5f3a1f8b8c5add5b270041b42f0e620f39654561",
+    "src/trading_platform/strategies/irf.py": "9ec4314ef65495d548280d0aba570cb9a508880507af3f060817193e024ffc6e",
+    "src/trading_platform/strategies/orb.py": "e8da3bffd0cf7c46bc2b05764c49468151e4090fcb72be64d06283fe38f2452b",
+    "src/trading_platform/strategies/pdr.py": "9f91234dfa1810348262027b0f9d410118e49129b3b61dc762e48a1550651bd8",
+    "src/trading_platform/strategies/pds.py": "dddd1d50afb57d01c97132bf26c67452939c81526953e6809e3ab9ceb39b36b4",
+    "src/trading_platform/strategies/price_action.py": "2c3f05384f18b8be5257187ef864d1a8ef7fba0bedd65b2739bf2ca045d68e21",
+    "src/trading_platform/strategies/provisional.py": "9166fd9e30656bdc1f1a79b47e3f2769ffba3b445f453ce8fe48a5c50365f1b8"
+  },
+  "created_at_utc": "2026-10-28T17:41:23.621586+00:00",
+  "dataset_hashes": [
+    {
+      "actual_sha256": "02984db58b9697e1bb8862b2a1a0284e94648d1536b8d9a5c2e61306d1ed684b",
+      "expected_sha256": "02984db58b9697e1bb8862b2a1a0284e94648d1536b8d9a5c2e61306d1ed684b",
+      "path": "data/processed/nifty/5m/nifty50_5m.parquet",
+      "status": "MATCH"
+    },
+    {
+      "actual_sha256": "8ed0deb2722cabc82e0528bd120a1947bf8e2668910f1a0ea97589a78c73bc4e",
+      "expected_sha256": "8ed0deb2722cabc82e0528bd120a1947bf8e2668910f1a0ea97589a78c73bc4e",
+      "path": "data/processed/nifty/1d/nifty50_1d.parquet",
+      "status": "MATCH"
+    },
+    {
+      "actual_sha256": "a0fea90ac0e7469e150fc732dba6f61f5984bd4a75a614ec5497e206a22db524",
+      "expected_sha256": "a0fea90ac0e7469e150fc732dba6f61f5984bd4a75a614ec5497e206a22db524",
+      "path": "data/processed/nifty/1m/nifty50_1m.parquet",
+      "status": "MATCH"
+    }
+  ],
+  "engine_version": "V3_PDF_CORRECTED",
+  "git_dirty": true,
+  "git_sha": "a5773b136f1c2f702f3479a10a8c4d966d3149eb",
+  "output_file_sha256": {
+    "portfolio_trades": "69c57db031feaa3267d04f7c23ca770ef64bcee1eee514156923090a962f0d49",
+    "rejected_signals": "1528c228809918b7f5cf192e5f142cfe43c75c822b448f9597c2922bd56e5d67",
+    "signals": "ef535f6630f20a38255324d7d9593b309508dc98c539467ef43427d19d58fccd",
+    "standalone_trades": "9bd5277186dea408ef665f999f606b5b67d78fdec6f7029c7cf4974f2ed830eb",
+    "summary_json": "3768a98e7a692eb9a1346d7b196af20b3ea04361f2d7a48f327cc12edb885f6d",
+    "summary_md": "0af03331881cee8173b29ad9757436cc8231c0a4479c8cf4388d255ee544f1ec"
+  },
+  "params": {
+    "bar_minutes": 5,
+    "entry_cutoff": "14:30",
+    "max_concurrent_positions": 1,
+    "slippage_points_per_side": 0.5,
+    "square_off": "15:15",
+    "tie_break_priority": [
+      "PDS",
+      "ORB",
+      "IRF",
+      "PDR"
+    ],
+    "window_end": "2026-08-31",
+    "window_start": "2025-09-01"
+  },
+  "params_hash_sha256": "523f282597d179fbe4940d55b6ce5de4fb5f9c08beb8be88776ab299ff89e3c1",
+  "python": "3.11.15",
+  "raw_signals_consistent_standalone_vs_joint": true,
+  "row_counts": {
+    "portfolio_trades": 194,
+    "rejected_signals": 35,
+    "signals": 229,
+    "standalone_trades": 219
+  },
+  "run_id": "V3_PDF_CORRECTED_20261028T174123Z_523f2825",
+  "scope_note": "NIFTY INDEX-POINT backtest of the ORIGINAL strategy configuration, run WITHOUT any optimization or parameter tuning.  Points are index points only: no historical option prices exist, so no option-rupee P&L is computed and nothing here validates option profitability.  The 2025-09..2026-08 window overlaps the data used when strategies and methods were selected (e.g. IRF Method 2 over Method 1), so treat results as a research candidate, not an out-of-sample estimate.",
+  "strategies_excluded": [
+    "RF (permanently disabled, never loaded)"
+  ],
+  "strategies_included": [
+    "PDS",
+    "ORB",
+    "IRF",
+    "PDR"
+  ],
+  "strategy_parameters": {
+    "IRF": {
+      "attributes": {
+        "default_stop_points": 35.0,
+        "max_stop_points": 40.0,
+        "method": "METHOD_2",
+        "min_extension_bars": 2,
+        "name": "IRF",
+        "no_green_stop_points": 35.0,
+        "status": "RESEARCH",
+        "stop_distance_basis": "GREEN_CANDLE_HIGH",
+        "stop_distance_threshold": 35.0,
+        "target_points": 60.0
+      },
+      "class": "IRFStrategy",
+      "config": {
+        "method": "METHOD_2"
+      }
+    },
+    "ORB": {
+      "attributes": {
+        "decision_time": "09:20:00",
+        "max_opposing_wick_ratio": 0.35,
+        "method": "METHOD_1",
+        "min_body_ratio": 0.5,
+        "name": "ORB",
+        "pin_bar_min_wick_ratio": 0.45,
+        "pin_bar_requires_directional_close": true,
+        "status": "RESEARCH",
+        "stop_points": 30.0,
+        "target_points": 60.0
+      },
+      "class": "ORBStrategy",
+      "config": {
+        "method": "METHOD_1"
+      }
+    },
+    "PDR": {
+      "attributes": {
+        "name": "PDR",
+        "status": "RESEARCH",
+        "target_points": 70.0
+      },
+      "class": "PDRStrategy",
+      "config": {}
+    },
+    "PDS": {
+      "attributes": {
+        "allow_opening_bar_entry": false,
+        "default_stop_points": 35.0,
+        "green_distance_threshold": 35.0,
+        "invalidate_on_close_above_zone": true,
+        "max_signals_per_day": 1,
+        "max_stop_points": 40.0,
+        "method": "METHOD_1",
+        "min_body_ratio": 0.45,
+        "name": "PDS",
+        "pin_bar_wick_ratio": 0.45,
+        "require_open_below_zone": true,
+        "status": "RESEARCH",
+        "support_break_mode": "close",
+        "target_points": 70.0,
+        "zone_proximity_pts": 5.0
+      },
+      "class": "PDSStrategy",
+      "config": {
+        "method": "METHOD_1"
+      }
+    }
+  },
+  "unit": "NIFTY_INDEX_POINTS"
+}

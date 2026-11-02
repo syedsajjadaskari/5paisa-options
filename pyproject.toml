@@ -37,6 +37,8 @@ dependencies = [
     "openpyxl>=3.1.0",
     "pypdf>=5.0.0",
     "pymupdf>=1.24.0",
+    "rich>=13.7.0",
+    "reportlab>=4.0.0",
 ]
 
 [project.optional-dependencies]
@@ -57,6 +59,8 @@ packages = ["src/trading_platform"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Retired legacy code/tests (docs/CLEANUP_MANIFEST.md) is preserved verbatim, never linted.
+extend-exclude = ["archive"]
 
 [tool.ruff.lint]
 select = [
@@ -76,6 +80,8 @@ minversion = "8.0"
 addopts = "-ra -q --strict-markers"
 testpaths = ["tests"]
 pythonpath = ["src"]
+# `archive/` holds retired tests kept for reference only; never collect them.
+norecursedirs = ["archive", ".*", "build", "dist", "*.egg", "node_modules", "venv"]
 
 [tool.mypy]
 python_version = "3.11"

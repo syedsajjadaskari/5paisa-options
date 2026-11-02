@@ -1,3 +1,15 @@
+> [!CAUTION]
+> ### SUPERSEDED - DO NOT RELY ON (marked 2026-10-29)
+> This document was written for an earlier engine / the retired Phase-4 stack and is kept only as history. **What is stale:**
+> - It describes the retired `trading_platform.paper` / `read_only_collector` / DuckDB stack (archived in `archive/legacy_2026-10-28/`); `paper_execution_enabled`, `paper/engine.py` and `python -m trading_platform.paper.cli` no longer exist. The commands below fail with `ModuleNotFoundError`.
+> - Use `README_PAPER_TRADING.md` (`scripts/run_paper_trading.py`, `--doctor`, `--replay`).
+> - Byte-exact original: `archive/evidence_originals_2026-10-29/docs/phase4b_runbook.md`. Index of all stale files: `reports/paper_trading_live_session/SUPERSEDED_INDEX.md`.
+>
+> **Current sources of truth:** `README_PAPER_TRADING.md` (how the app really works), `docs/live_app_architecture.md`, `docs/STRATEGY_EXECUTION_STATUS.md` (what each strategy does today), `docs/AUTHOR_CONFIRMATION_REQUEST.md` (what the strategy author must still confirm), and `reports/backtest/V3_PDF_CORRECTED_20261028T174123Z_523f2825` (current backtest: 184 portfolio trades, +813.60 index points, profit factor 1.22 in the 2025-09..2026-08 window; NIFTY index points only, in-sample, no option P&L).
+> The text below is unchanged history.
+
+---
+
 # Phase 4B — Paper Trading Platform Operator Runbook
 
 ## Overview

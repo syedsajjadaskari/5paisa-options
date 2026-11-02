@@ -83,8 +83,12 @@ def test_pdr_gap_up_retest_bounce() -> None:
     # 09:15 - Open 24830 (> 24750 gap up verified)
     strat.on_bar(ctx, _make_bar(d, 9, 15, 24830.0, 24850.0, 24820.0, 24840.0))
 
-    # 09:20 - Pulls back into PDH zone (Low 24798 touches PDH 24800), closes strong green 24825
-    b_bounce = _make_bar(d, 9, 20, 24805.0, 24830.0, 24798.0, 24825.0)
+    # 09:20 - Pulls back into PDH zone (Low 24798 touches PDH 24800): zone tested (red candle)
+    assert strat.on_bar(ctx, _make_bar(d, 9, 20, 24815.0, 24818.0, 24798.0, 24805.0)) is None
+
+    # 09:25 - Green candle AFTER the zone test confirms (PDF 4.3); same-candle test+confirm is
+    # not enough (previous version of this test encoded that defect).
+    b_bounce = _make_bar(d, 9, 25, 24805.0, 24830.0, 24803.0, 24825.0)
     sig = strat.on_bar(ctx, b_bounce)
 
     assert sig is not None

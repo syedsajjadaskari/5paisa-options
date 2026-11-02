@@ -1,0 +1,56 @@
+# ORB (Opening Range Breakout) - Method 1 (previous-day level break) PROVISIONAL interpretations.
+#
+# Source: docs/strategy_rulebooks/ORB_Strategy_Rulebook-2.pdf.  The PDF gives NO number or
+# precise definition for any entry below; each value is the default the frozen baseline used,
+# kept unchanged (NOT tuned, NOT chosen from backtest P&L).  None of them is author-approved.
+# Any strategy relying on them stays SHADOW_ONLY unless a separately approved research-paper
+# configuration says otherwise.  Read via strategies.provisional.load_provisional("orb").
+
+min_body_ratio:
+  value: 0.50
+  status: PROVISIONAL
+  why: PDF p9-10 asks for a "strong green/red body" and "large body" but gives no body/range ratio.
+
+max_opposing_wick_ratio:
+  value: 0.35
+  status: PROVISIONAL
+  why: PDF p9-10 asks for a "small" opposing wick (upper for long, lower for short) and rejects a
+    "strong" one, without a number. configs/strategies/orb.yaml (0.20) and the spec text (20%) disagree
+    with each other; the value the executed code always used (0.35) is kept.
+
+pin_bar_min_wick_ratio:
+  value: 0.45
+  status: PROVISIONAL
+  why: PDF p10 allows a pin bar (rejection of the opposite side) as a CONDITIONAL candle but defines
+    no wick-to-range ratio for "pin bar".
+
+pin_bar_requires_directional_close:
+  value: true
+  status: PROVISIONAL
+  why: PDF p10 says a pin bar's "position and close" must support the breakout and its shape alone is
+    never sufficient. Interpreted as - the pin bar must close in the trade direction (green for long,
+    red for short) and still pass the opposing-wick rejection test. Exact test is not in the PDF.
+
+trend_ema_basis:
+  value: EMA200_5M_CLOSE
+  status: PROVISIONAL
+  why: PDF p3-4 says "price above the 200 EMA" confirms the trend but does not state the timeframe
+    or series. Interpreted as the 5-minute close-based 200-period EMA supplied by the reference
+    level builder. "Bullish/bearish price structure" is not tested (no definition in the PDF).
+
+level_basis:
+  value: PDH_PDL_WICK_EXTREME
+  status: PROVISIONAL
+  why: PDF p3-4 says "previous-day resistance/support" marked as a horizontal line; the p13
+    screenshots draw a ZONE. The level is the previous session's highest high / lowest low of the
+    regular-session 5-minute candles (wick extreme, single dataset shared with the zones; the
+    official daily high/low is only an OFFICIAL_DAILY_FALLBACK when the 5m session is unusable and
+    differs from the 5m extreme by ~0.5 pt typically and 37-51 pts on a few days). Zone edges are
+    NOT used.
+
+risk_unit:
+  value: NIFTY_INDEX_POINTS
+  status: PROVISIONAL
+  why: PDF p11 gives SL 30 / TP 60 but tells the trader to decide whether they are index points,
+    option price units or rupees. Interpreted as NIFTY index points from the entry reference
+    (underlying SL/TP), as the baseline engine did.

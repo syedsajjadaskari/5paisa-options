@@ -81,7 +81,10 @@ def test_fixed_target_and_stop_are_rebased_to_actual_next_bar_fill():
     assert trade.target == 170.5
     assert trade.stop_loss == 80.5
     assert trade.exit_time == start + timedelta(minutes=10)
-    assert trade.points_pnl == pytest.approx(60.0)
+    # V3_PDF_CORRECTED: TARGET exits pay exit slippage like every other exit type
+    # (170.5 target - 0.5 slip = 170.0 fill), so the net is 60 - 0.5 = 59.5, not 60.0.
+    assert trade.exit_price == pytest.approx(170.0)
+    assert trade.points_pnl == pytest.approx(59.5)
 
 
 def test_pending_signal_cannot_enter_at_or_after_1430_cutoff():

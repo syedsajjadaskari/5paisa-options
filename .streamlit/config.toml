@@ -1,0 +1,8 @@
+# Streamlit settings for scripts/paper_trading_dashboard.py (read when launched from the repo root).
+# The dashboard shows a (virtual) trading account: keep it on this machine only.
+[server]
+address = "127.0.0.1"
+headless = true
+
+[browser]
+gatherUsageStats = false

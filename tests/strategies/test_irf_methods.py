@@ -54,7 +54,14 @@ def test_irf_method1_breakout_immediate_failure() -> None:
 
 
 def test_irf_method2_support_break() -> None:
-    """Method 2: Extension above IRH for >= 2 candles, then breakdown below support -> SELL."""
+    """Method 2 (PDF Fig 3): close above IRH, extension, red pullback candle (recent support),
+    then a candle closes below that support -> SELL.
+
+    The earlier version of this test had the *first red candle itself* close below the lowest low
+    of all extension bars.  That encoded the baseline proxy (support = lowest low of every
+    post-breakout bar), which contradicts Figure 3 where recent support is the pullback (red)
+    candle's low; see tests/strategies/test_irf_pdf_conformance.py for the full rule set.
+    """
     strat = IRFStrategy(config={"method": "METHOD_2_SUPPORT_BREAK"})
     ctx = StrategyContext()
 
@@ -62,15 +69,17 @@ def test_irf_method2_support_break() -> None:
     # 09:15 - IR (IRH = 24900)
     strat.on_bar(ctx, _make_bar(d, 9, 15, 24850.0, 24900.0, 24800.0, 24850.0))
 
-    # 09:20 - Extension 1 (Close = 24920 > 24900, Low = 24905)
+    # 09:20 - Breakout close above IRH (Close = 24920 > 24900)
     strat.on_bar(ctx, _make_bar(d, 9, 20, 24910.0, 24925.0, 24905.0, 24920.0))
 
-    # 09:25 - Extension 2 (Close = 24930 > 24900, Low = 24910)
+    # 09:25 - Extension (Close = 24930 > 24900)
     strat.on_bar(ctx, _make_bar(d, 9, 25, 24920.0, 24935.0, 24910.0, 24930.0))
 
-    # 09:30 - Red candle closes below recent support (24905): Close = 24895 < 24905
-    b_rev = _make_bar(d, 9, 30, 24920.0, 24922.0, 24890.0, 24895.0)
-    sig = strat.on_bar(ctx, b_rev)
+    # 09:30 - Red pullback candle: its low (24915) becomes recent support. No signal yet.
+    assert strat.on_bar(ctx, _make_bar(d, 9, 30, 24928.0, 24929.0, 24915.0, 24918.0)) is None
+
+    # 09:35 - Candle closes below recent support (24915): Close = 24895 < 24915
+    sig = strat.on_bar(ctx, _make_bar(d, 9, 35, 24918.0, 24920.0, 24890.0, 24895.0))
 
     assert sig is not None
     assert sig.direction == SignalDirection.SELL

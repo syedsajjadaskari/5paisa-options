@@ -1,0 +1,53 @@
+# PDS (Previous Day Support) - PROVISIONAL interpretations.
+#
+# The author PDF ("PDS strategy.pdf") gives NO number or structure for the items below.
+# The values are the ones the frozen baseline code already used (no tuning, nothing
+# chosen from backtest P&L).  None of them is author-approved; while any of them is
+# in play PDS stays SHADOW_ONLY unless a separately approved research-paper opt-in
+# says otherwise.  Fixed PDF numbers (70 pt target, 35/40 pt stop) are NOT listed here;
+# they live in the strategy as PDF constants.  Read through strategies.provisional.load_provisional().
+
+min_body_ratio:
+  value: 0.45
+  status: PROVISIONAL
+  why: PDF says a "good red candle" has "a good body" but gives no numeric body size (open item p.5)
+
+pin_bar_wick_ratio:
+  value: 0.45
+  status: PROVISIONAL
+  why: PDF says "long upper wick" for the HPR pin bar; wick-to-body ratio is an open item (p.5)
+
+zone_proximity_pts:
+  value: 5.0
+  status: PROVISIONAL
+  why: PDF says price may "come very close" to the zone and still count as a test; no number given (p.4)
+
+support_break_mode:
+  value: close
+  status: PROVISIONAL
+  why: PDF open item - Method 3 does not say whether a candle CLOSE below the small support is required (close) or a touch is enough (touch)
+
+green_candle_distance_threshold_pts:
+  value: 35.0
+  status: PROVISIONAL
+  why: PDF - stop is 35 if the recent green candle's distance is below 35 and 40 above 35; how the distance is measured and the exact-35 case are open items. Code measures recent green candle HIGH minus signal-candle close, searched among today's earlier bars; 35 when no green candle exists today
+
+max_signals_per_day:
+  value: 1
+  status: PROVISIONAL
+  why: PDF is silent on the number of trades per day; the baseline emitted at most one per day
+
+allow_opening_bar_entry:
+  value: false
+  status: PROVISIONAL
+  why: PDF says price must RISE back to the zone after the gap-down open; whether the 09:15 candle itself may be the test/decision candle is not stated, so it is excluded. Note also (hard-coded in the strategy, not a yaml key) - only the FIRST red candle at the zone is judged for Methods 1 and 2; a weak first red candle consumes that approach
+
+require_open_below_zone:
+  value: true
+  status: PROVISIONAL
+  why: PDF - "After the open, price is trading below the previous day's support zone"; read as the 09:15 open being below the zone low (a gap down that still opens at/above the zone does not qualify). Measured - this gate skips 68 of the 116 gap-down days in the history; it is not the cause of the missed 2025-12-26 journal day (that is the first-red-candle rule). Open question to the author
+
+invalidate_on_close_above_zone:
+  value: true
+  status: PROVISIONAL
+  why: PDF says price must rise FROM BELOW and the zone must act as RESISTANCE; a candle closing above the zone (+ proximity) is read as the zone having failed as resistance for the day. The PDF does not state this explicitly

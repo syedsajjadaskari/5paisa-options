@@ -1,6 +1,5 @@
 """Live Market Data Feed, WebSocket/Polling Client, and 5-Minute Candle Aggregator."""
 
-import json
 import logging
 import re
 from dataclasses import dataclass
@@ -10,8 +9,10 @@ from zoneinfo import ZoneInfo
 from trading_platform.brokers.fivepaisa import FivePaisaBroker
 from trading_platform.core.enums import DataSource, Exchange, InstrumentType, Timeframe
 from trading_platform.core.models import Bar
+from trading_platform.core.redaction import SensitiveDataFilter, redact_payload, redacted_json
 
 logger = logging.getLogger(__name__)
+logger.addFilter(SensitiveDataFilter())
 
 TZ_IST = ZoneInfo("Asia/Kolkata")
 TZ_UTC = ZoneInfo("UTC")
@@ -40,9 +41,103 @@ def parse_fivepaisa_timestamp(ts_str: str | None) -> datetime:
         raise ValueError(f"Invalid 5paisa timestamp: {ts_str!r}") from exc
 
 
+NIFTY_SPOT_SCRIP_CODE = 999920000
+_SPOT_SYMBOLS = ("NIFTY", "NIFTY 50")
+
+
+class FeedParseError(ValueError):
+    """A 5paisa market-data response failed structural or identity validation."""
+
+    def __init__(self, category: str, message: str) -> None:
+        super().__init__(message)
+        self.category = category
+
+
+def extract_spot_item(resp: object, expected_scrip: int = NIFTY_SPOT_SCRIP_CODE) -> dict:
+    """Return the single NIFTY index item from a ``fetch_market_feed_scrip`` response.
+
+    Strict (fail-closed) identity check: the spot payload identifies the instrument
+    with ``Token`` (and ``Symbol``), not ``ScripCode``; at least one identity key must
+    be present and every present key must match.
+    """
+    if resp is None or resp == "":
+        raise FeedParseError("EMPTY_RESPONSE", "empty response from market feed")
+    if not isinstance(resp, dict):
+        raise FeedParseError("MALFORMED", f"unexpected response type {type(resp).__name__}")
+    if resp.get("Status") != 0:
+        raise FeedParseError("API_REJECTED", f"Status={resp.get('Status')} {resp.get('Message')}")
+    data = resp.get("Data")
+    if not isinstance(data, list) or not data or not isinstance(data[0], dict):
+        raise FeedParseError("MALFORMED", "market feed returned no Data items")
+    item = data[0]
+    token = item.get("Token")
+    if token is None:
+        token = item.get("ScripCode", item.get("Scripcode"))
+    symbol = item.get("Symbol")
+    if token is None and symbol is None:
+        raise FeedParseError("IDENTITY_UNVERIFIED", "spot item has neither Token nor Symbol")
+    if token is not None:
+        try:
+            if int(token) != expected_scrip:
+                raise FeedParseError("IDENTITY_MISMATCH", f"unexpected spot Token {token}")
+        except (TypeError, ValueError) as exc:
+            raise FeedParseError("IDENTITY_MISMATCH", f"unparseable spot Token {token!r}") from exc
+    if symbol is not None and str(symbol).strip().upper() not in _SPOT_SYMBOLS:
+        raise FeedParseError("IDENTITY_MISMATCH", f"unexpected spot Symbol {symbol}")
+    if item.get("Exch") not in (None, "N") or item.get("ExchType") not in (None, "C"):
+        raise FeedParseError("IDENTITY_MISMATCH", "unexpected exchange segment for NIFTY spot")
+    return item
+
+
+def extract_depth_item(resp: object, expected_scrip: int) -> dict:
+    """Return the ``MarketDepthData[0]`` item of a ``fetch_market_depth`` response.
+
+    The response must echo the requested ``ScripCode`` (fail closed if it does not).
+    """
+    if resp is None or resp == "":
+        raise FeedParseError("EMPTY_RESPONSE", "empty response from market depth")
+    if not isinstance(resp, dict):
+        raise FeedParseError("MALFORMED", f"unexpected response type {type(resp).__name__}")
+    if resp.get("Status") != 0:
+        raise FeedParseError("API_REJECTED", f"Status={resp.get('Status')} {resp.get('Message')}")
+    data = resp.get("MarketDepthData")
+    if not isinstance(data, list) or not data or not isinstance(data[0], dict):
+        raise FeedParseError("MALFORMED", "market depth returned no MarketDepthData")
+    depth = data[0]
+    echoed = depth.get("ScripCode", depth.get("Scripcode"))
+    if echoed is None:
+        raise FeedParseError("IDENTITY_UNVERIFIED", "depth item does not echo ScripCode")
+    try:
+        if int(echoed) != expected_scrip:
+            raise FeedParseError("IDENTITY_MISMATCH", f"depth ScripCode {echoed} != {expected_scrip}")
+    except (TypeError, ValueError) as exc:
+        raise FeedParseError("IDENTITY_MISMATCH", f"unparseable depth ScripCode {echoed!r}") from exc
+    if depth.get("Exch") not in (None, "N") or depth.get("ExchType") not in (None, "D"):
+        raise FeedParseError("IDENTITY_MISMATCH", "unexpected exchange segment for option depth")
+    return depth
+
+
+def best_levels(depth: dict) -> tuple[float, int, float, int]:
+    """Return ``(bid, bid_qty, ask, ask_qty)`` of the top book level; 0 when a side is empty."""
+
+    def top(side: object) -> tuple[float, int]:
+        if not isinstance(side, list) or not side or not isinstance(side[0], dict):
+            return 0.0, 0
+        return float(side[0].get("Price") or 0.0), int(float(side[0].get("Quantity") or 0))
+
+    bid, bid_qty = top(depth.get("Bids"))
+    ask, ask_qty = top(depth.get("Asks"))
+    return bid, bid_qty, ask, ask_qty
+
+
 @dataclass(frozen=True)
 class Level2Quote:
-    """Level 2 Best Bid/Ask quote snapshot for option contracts."""
+    """Level 2 Best Bid/Ask quote snapshot for option contracts.
+
+    ``provider_timestamp`` is the depth response ``TimeStamp``: API-server time, NOT a
+    proven exchange matching-engine time (it changes on every call, even for illiquid
+    strikes).  ``last_price`` is the best ask (the depth endpoint carries no LTP).
+    """
 
     scrip_code: int
     symbol: str
@@ -51,7 +146,7 @@ class Level2Quote:
     bid_qty: int
     ask_qty: int
     last_price: float
-    provider_timestamp: datetime  # Official exchange matching engine timestamp
+    provider_timestamp: datetime  # API-server response time (NOT proven exchange time)
     ingestion_timestamp: datetime  # Local system receipt timestamp
     is_stale: bool = False
     raw_provider_timestamp: str | None = None
@@ -91,7 +186,7 @@ class SpotTick:
     high: float
     low: float
     prev_close: float
-    provider_timestamp: datetime  # Official exchange tick timestamp
+    provider_timestamp: datetime  # TickDt: provider tick time (1 s resolution)
     ingestion_timestamp: datetime  # Local system receipt timestamp
     is_stale: bool = False
     raw_provider_timestamp: str | None = None
@@ -168,6 +263,7 @@ class FiveMinuteCandleAggregator:
                 volume=self.tick_count,
                 # This is an OHLC reconstructed from sampled live spot ticks,
                 # not an authoritative provider candle.
+                # Misnomer: bars are built from POLLED REST ticks (no websocket).
                 source=DataSource.FIVEPAISA_WS,
             )
             self.closed_bars.append(completed_bar)
@@ -283,7 +379,7 @@ class LiveMarketFeed:
         try:
             req = [{"Exch": "N", "ExchType": "C", "ScripCode": scrip_code}]
             resp = self.broker.client.fetch_market_feed_scrip(req)
-            self.last_spot_raw_response = resp if isinstance(resp, dict) else None
+            self.last_spot_raw_response = redact_payload(resp) if isinstance(resp, dict) else None
             logger.info(f"[TRANSITION] API_RESPONSE: Status={resp.get('Status') if resp else 'None'}")
 
             if not resp or resp.get("Status") != 0:
@@ -301,7 +397,7 @@ class LiveMarketFeed:
                 return None
 
             item = data[0]
-            response_scrip = item.get("ScripCode") or item.get("Scripcode")
+            response_scrip = item.get("ScripCode") or item.get("Scripcode") or item.get("Token")
             if response_scrip is not None and int(response_scrip) != scrip_code:
                 self.last_error_category = "INVALID_PAYLOAD"
                 self.last_error = f"Unexpected spot scrip code: {response_scrip}"
@@ -353,7 +449,7 @@ class LiveMarketFeed:
                 is_stale=is_stale,
                 raw_provider_timestamp=str(raw_ts),
                 provenance_verified=True,
-                raw_response_json=json.dumps(resp, sort_keys=True, default=str),
+                raw_response_json=redacted_json(resp),
             )
             self.last_spot_tick = tick
             self.last_poll_time = ingestion_ts
@@ -387,7 +483,7 @@ class LiveMarketFeed:
             req = [{"Exchange": "N", "ExchangeType": "D", "ScripCode": scrip_code}]
             resp = self.broker.client.fetch_market_depth(req)
             if isinstance(resp, dict):
-                self.last_option_raw_responses[scrip_code] = resp
+                self.last_option_raw_responses[scrip_code] = redact_payload(resp)
 
             if not resp or resp.get("Status") != 0:
                 self.last_error_category = "API_REJECTED" if resp else "INVALID_PAYLOAD"
@@ -433,6 +529,7 @@ class LiveMarketFeed:
             best_bid = float(bids[0]["Price"]) if bids and len(bids) > 0 else 0.0
             bid_qty = int(bids[0]["Quantity"]) if bids and len(bids) > 0 else 0
 
+            # NOTE: depth has no LTP; this is the best ask (optimistic), kept for compatibility.
             last_price = best_ask if best_ask > 0 else best_bid
 
             quote = Level2Quote(
@@ -448,7 +545,7 @@ class LiveMarketFeed:
                 is_stale=is_stale,
                 raw_provider_timestamp=str(raw_ts),
                 provenance_verified=True,
-                raw_response_json=json.dumps(resp, sort_keys=True, default=str),
+                raw_response_json=redacted_json(resp),
             )
             self.last_option_quotes[scrip_code] = quote
             return quote

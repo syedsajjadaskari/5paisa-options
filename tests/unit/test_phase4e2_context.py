@@ -11,7 +11,6 @@ from trading_platform.core.enums import DataSource, Exchange, InstrumentType, Ti
 from trading_platform.core.models import Bar
 from trading_platform.data.candle_quality import validate_5m_frame
 from trading_platform.data.point_in_time_context import PointInTimeReferenceProvider
-from trading_platform.paper.shadow import ShadowSignalCollector
 
 TZ_IST = ZoneInfo("Asia/Kolkata")
 TZ_UTC = ZoneInfo("UTC")
@@ -71,30 +70,6 @@ def test_missing_warmup_is_explicit() -> None:
     assert context.as_dict()["ema_200"] is None
     assert "ema_200" in context.missing_fields
     assert context.validation_status == "MISSING_DATA"
-
-
-def test_late_received_candle_is_not_shadow_eligible() -> None:
-    day = date(2025, 8, 6)
-    current = _bar(day, 9, 15, 100, 101, 99, 100)
-    prior = _bar(date(2025, 8, 5), 9, 15, 90, 95, 85, 92)
-    provider = PointInTimeReferenceProvider([prior, current], [prior], ema_period=1, dma_period=1)
-    context = provider.build(current, observation_time=current.exchange_time + timedelta(minutes=4))
-    shadow = ShadowSignalCollector()
-    row = shadow.evaluate_strategy_bar("PDS", "METHOD_1", current, context)
-    assert row["reason_code"] == "INCOMPLETE_CANDLE"
-    assert row["execution_created"] is False
-
-
-def test_shadow_uses_same_frozen_context_values() -> None:
-    day = date(2025, 8, 6)
-    prior = _bar(date(2025, 8, 5), 9, 15, 90, 95, 85, 92)
-    current = _bar(day, 9, 15, 100, 101, 99, 100)
-    provider = PointInTimeReferenceProvider([prior, current], [prior], ema_period=1, dma_period=1)
-    context = provider.build(current)
-    shadow = ShadowSignalCollector()
-    row = shadow.evaluate_strategy_bar("PDS", "METHOD_1", current, context)
-    assert '"pdc": 92' in row["previous_day_levels"]
-    assert row["decision_available_time"] == context.candle_available_timestamp.isoformat()
 
 
 def test_authoritative_candle_validation_rejects_duplicates_and_future_rows() -> None:

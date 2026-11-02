@@ -1,0 +1,10 @@
+SUPERSEDED  (marked 2026-10-29)
+
+COMBINED_PORTFOLIO_TRADES.csv (repo root; the dashboard shows it as 'Legacy frozen') is the pre-V3
+FIFO portfolio: 274 trades, +2,400.90 index points, PF 1.46 in the window (288 / +2,691.50 on the full
+dataset). The current engine (V3_PDF_CORRECTED) gives 184 trades, +813.60 points, PF 1.22 in the window
+(194 / +1,139.40 on the full dataset). NIFTY index points only; in-sample; no option P&L.
+
+The CSV itself is left unchanged on purpose (the dashboard reads it). Current ledger:
+reports/backtest/V3_PDF_CORRECTED_20261028T174123Z_523f2825/portfolio_trades.csv
+Byte-exact copy: archive/evidence_originals_2026-10-29/COMBINED_PORTFOLIO_TRADES.csv
